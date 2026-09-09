@@ -71,5 +71,37 @@ Resiris CalcEngine
 ########################################################################
 <include:"Resiris.module">
 
+input = Resiris.base_button
+
+v number1
+v number2
+v number3
+v number4
+v number5
+v number6
+v number7
+v number8
+v number9
+v number10
+v number11
+v number12
+v number13
+v number14
+v number15
+v number16
+v number17
+v number18
+v number19
+v number20
+
+
 fn start():
-    
+    Resiris.base_window_clear()
+
+fn process():
+    match input:
+        "1":
+            number1
+        "2":
+            number1
+    pass
