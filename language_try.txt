@@ -87,29 +87,25 @@ Typed variant:
     A variant with a declared value type. Every assigned value must use
     that type.
     Example:
-        v score : int
+        v score  int
         score = 10
 
 int:
     Stores a whole number.
-    Example: v lives : int = 3
-
+    Example: v lives int = 3
+    
 float:
     Stores a number with a fractional part.
-    Example: v speed : float = 1.5
+    Example: v speed float = 1.5
 
 string:
     Stores text.
-    Example: v player_name : string = "Player"
+    Example: v player_name string = "Player"
 
 bool:
     Stores true or false.
-    Example: v is_alive : bool = true
+    Example: v is_alive bool = true
 
-Vector2:
-    Stores two-dimensional x and y coordinates.
-    Example:
-        v position = Vector2(1, 1)
 
 =:
     Assigns a value to a variant.
@@ -137,20 +133,6 @@ str():
 
 Resiris.module:
     The main Resiris module containing general system elements.
-
-ResirisGameEngine:
-    The module containing game-related systems.
-    It must be included when a game uses game engine elements.
-
-ResirisModuleObject:
-    The type used by a variant that references an object or function from
-    a Resiris or ResirisGameEngine module.
-
-Resiris.base_button:
-    Provides the base input button used by the calculator example.
-
-Resiris.base_window_clear():
-    Clears the base window before the calculator starts.
 
 Resiris.print():
     The Resiris module function that displays text or a value.
@@ -196,70 +178,6 @@ title:
 text:
     A property that stores a button's displayed text.
 
-
-########################################################################
-## 4. GameEngine example
-########################################################################
-
-<include:"Resiris.module">
-<include:"ResirisGameEngine.module">
-
-v player : ResirisModuleObject = ResirisGameEngine.module.player
-v input : ResirisModuleObject = ResirisGameEngine.module.input.get_input
-v input_window : ResirisModuleObject = ResirisGameEngine.window
-
-v up_window_input_button : ResirisModuleObject = ResirisGameEngine.editable_button
-v down_window_input_button : ResirisModuleObject = ResirisGameEngine.editable_button
-v right_window_input_button : ResirisModuleObject = ResirisGameEngine.editable_button
-v left_window_input_button : ResirisModuleObject = ResirisGameEngine.editable_button
-
-fn start():
-    set_input_setting()
-    draw_player()
-
-fn set_input_setting():
-    input_window.show_window()
-    input_window.title = "Input Window"
-
-    ## Configure the up direction.
-    up_window_input_button.init()
-    up_window_input_button.text = "Press a button to set the 'up' direction"
-    input.up = await input.wait_for_next_press()
-    up_window_input_button.input = input.up
-
-    ## Configure the down direction.
-    down_window_input_button.init()
-    down_window_input_button.text = "Press a button to set the 'down' direction"
-    input.down = await input.wait_for_next_press()
-    down_window_input_button.input = input.down
-
-    ## Configure the right direction.
-    right_window_input_button.init()
-    right_window_input_button.text = "Press a button to set the 'right' direction"
-    input.right = await input.wait_for_next_press()
-    right_window_input_button.input = input.right
-
-    ## Configure the left direction.
-    left_window_input_button.init()
-    left_window_input_button.text = "Press a button to set the 'left' direction"
-    input.left = await input.wait_for_next_press()
-    left_window_input_button.input = input.left
-
-fn draw_player():
-    player.init()
-    player.position = Vector2(1, 1)
-
-fn process(delta):
-    if input.just_pressed == input.up:
-        player.position.y += 1
-    elif input.just_pressed == input.down:
-        player.position.y -= 1
-    elif input.just_pressed == input.right:
-        player.position.x += 1
-    elif input.just_pressed == input.left:
-        player.position.x -= 1
-    else:
-        pass
 
 
 ########################################################################
