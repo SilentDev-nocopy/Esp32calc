@@ -1,3 +1,5 @@
+GameEngine idea
+#########################################################
 <include:"Resiris.module"> ##conatins everything
 
 ##we have a module named ResirisGameEngine but
@@ -62,3 +64,12 @@ fn process(delta): ##runs on every frame after start
         return
     
     ##the "if" only works in its own space! If it content is empty, Error!
+
+#######################################################################
+
+Resiris CalcEngine
+########################################################################
+<include:"Resiris.module">
+
+fn start():
+    
