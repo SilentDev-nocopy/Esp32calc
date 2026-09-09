@@ -1,12 +1,12 @@
 GameEngine idea
 #########################################################
-<include:"Resiris.module"> ##conatins everything
+<include:"Resiris.module"> ## includes the general Resiris module
 
-##we have a module named ResirisGameEngine but
-##this only for games! the main Resiris.module contains everything 
-##so it easiet to include everything
+## We have a module named ResirisGameEngine, but it is only for games.
+## The main Resiris.module contains the general system elements.
+## Include both modules when the program needs game and system features.
 
-v player = Resiris.module.player ##sets the player variant to the player( which has a given ASCII icon)
+v player = Resiris.module.player ## sets the player variant to the player object
 v input = Resiris.module.input.get_input
 v input_window = ResirisGameEngine.window
 
@@ -15,7 +15,7 @@ v down_window_input_button = ResirisGameEngine.editable_button
 v right_window_input_button = ResirisGameEngine.editable_button
 v left_window_input_button = ResirisGameEngine.editable_button
 
-fn start(): ##ON start it runs this function
+fn start(): ## Runs this function once when the program starts.
     set_input_setting()
     draw_player()
 
@@ -26,8 +26,8 @@ fn set_input_setting():
     ##up
     up_window_input_button.init() ##instantiates the editable button
     up_window_input_button.text = "Press a button to set the 'up' direction" ##sets button title to the given title
-    input.up = await input.wait_for_next_press() ##waits until it gets a random input (except MODE)
-    up_window_input_button.input = input.up ##sets the given button input to the random button that we earlyer set
+    input.up = await input.wait_for_next_press() ## waits for a valid input except MODE
+    up_window_input_button.input = input.up ## assigns the selected input to the button
 
     ##down
     down_window_input_button.init()
@@ -48,22 +48,20 @@ fn set_input_setting():
     left_window_input_button.input = input.left
 
 fn draw_player():
-    player.init() ##instantiates the player
-    player.position = Vector2(1 , 1) ##sets player position (origin is at 0 , 0)
+    player.init() ## initializes the player
+    player.position = Vector2(1, 1) ## origin is at 0, 0
 
 fn process(delta): ##runs on every frame after start
     if input.just_pressed == input.up:
         player.position.y += 1
-    if input.just_pressed == input.down:
-        player.position.y += -1 ##or  -=1
-    if input.just_pressed == input.right:
+    elif input.just_pressed == input.down:
+        player.position.y -= 1
+    elif input.just_pressed == input.right:
         player.position.x += 1
-    if input.just_pressed == input.left:
-        player.position.x += -1 ##or  -=1
+    elif input.just_pressed == input.left:
+        player.position.x -= 1
     else:
         return
-    
-    ##the "if" only works in its own space! If it content is empty, Error!
 
 #######################################################################
 
@@ -71,7 +69,7 @@ Resiris CalcEngine
 ########################################################################
 <include:"Resiris.module">
 
-input = Resiris.base_button
+v input = Resiris.base_button
 
 v number1
 v number2
@@ -99,47 +97,47 @@ fn start():
     Resiris.base_window_clear()
 
 fn process():
-    match input:
+    match input.just_pressed:
         "1":
-            number1
+            print(number1)
         "2":
-            number2
+            print(number2)
         "3":
-            number3
+            print(number3)
         "4":
-            number4
+            print(number4)
         "5":
-            number5
+            print(number5)
         "6":
-            number6
+            print(number6)
         "7":
-            number7
+            print(number7)
         "8":
-            number8
+            print(number8)
         "9":
-            number9
+            print(number9)
         "10":
-            number10
+            print(number10)
         "11":
-            number11
+            print(number11)
         "12":
-            number12
+            print(number12)
         "13":
-            number13
+            print(number13)
         "14":
-            number14
+            print(number14)
         "15":
-            number15
+            print(number15)
         "16":
-            number16
+            print(number16)
         "17":
-            number17
+            print(number17)
         "18":
-            number18
+            print(number18)
         "19":
-            number19
+            print(number19)
         "20":
-            number20
+            print(number20)
         else:
             pass
 
@@ -159,8 +157,8 @@ v:
     Defines a variable.
     Example: v number1
 c:
-    Defines a constans
-    Cant change its value or valuetype
+    Defines a constant.
+    Its value and value type cannot be changed after definition.
 fn:
     Defines a function. A function is a named block of code
     that can be called later.
@@ -180,12 +178,33 @@ await:
 if:
     Checks a condition. Its block runs only when the condition is true.
 
+elif:
+    Checks another condition when the previous if condition was false.
+
 else:
     The counterpart of if. It runs when the if condition is false.
 
 match:
     Compares a value with multiple possible options.
     The code in the matching branch is executed.
+
+return:
+    Stops the current function and optionally returns a value.
+
+=:
+    Assigns a value to a variable.
+
++=:
+    Adds a value to a variable.
+
+-=:
+    Subtracts a value from a variable.
+
+*=:
+    Multiplies a variable by a value.
+
+/=:
+    Divides a variable by a value.
 
 pass:
     Performs no operation. It is used as a placeholder for an empty block.
@@ -199,13 +218,16 @@ Resiris.module:
 ResirisGameEngine:
     The module containing the game-related systems.
 
+ResirisModule:
+    The type used by a variant that references a Resiris module function.
+
 player:
     The player object. After initialization, its position can be set
     with the position property.
 
 input:
     The input system object. just_pressed represents the button
-    that was just pressed.
+    that was just pressed during the current frame.
 
 window:
     A window object that can be displayed and configured.
@@ -231,28 +253,80 @@ position:
 title and text:
     Properties that store the displayed text of a window or button.
 
+int:
+    Stores a whole number.
+
+float:
+    Stores a number with a fractional part.
+
+string:
+    Stores text.
+
+bool:
+    Stores true or false.
+
+str():
+    Converts a value into text.
+
+print:
+    A callable variant assigned to the Resiris.print() module function.
+    It can be called as print(value) after this declaration:
+    v print : ResirisModule = Resiris.print()
+    It is not a built-in keyword of the language.
+
+## A line beginning with ## is a comment. The interpreter ignores the
+## comment text after ## on that line.
+
 ## Indentation determines which block each line of code belongs to.
 ## The language structure is based on Godot/GDScript, but Resiris has
 ## its own keywords and objects that must be defined separately.
+
+Resiris.base_button:
+    Provides the base input button used by the calculator example.
+
+Resiris.base_window_clear():
+    Clears the base window before the calculator starts.
 
 
 ##################################################################
 
 Some Resiris command
 ########################################################################
-v print = Resiris.print
+v print : ResirisModule = Resiris.print()
 v test_value : int = 100
-printing text: print("Hello World)
-printing value as text: print(str(value))
-print value: print(test_value)
+## print text:
+print("Hello World")
+## print value as text:
+print(str(test_value))
+## print value:
+print(test_value)
 
-When a variant does not have a pre-set valuetype then give error cause we need the help for the interpreter!
-If we dont know if the value will go to float then already set its valuetype to float!
-If a variable is has a name but no value ot valuetype then its a "UnknownObject variant" which means that it will be set in the future and we cant set it to given value
+If a variable has a name but no value or value type, it is an
+"UnknownObject variant". It can receive a value in the future.
+The first assigned value gives it a value type.
+
+If a value type is declared, every assigned value must use that type.
 
 c random_value : int = 1
-random value = "text" ## Error!
+random_value = "text" ## TypeError!
 
-v asd1 : int = 1.1 ##Error!
-c asd2 : int = 1.1 ##Error!
-v asd3 = 1 ##Error! MISSING VALUE TYPE!
+v asd1 : int = 1.1 ## TypeError!
+c asd2 : int = 1.1 ## TypeError!
+v asd3 : int ## Declared type, value can be assigned later.
+
+## Common interpreter errors
+
+UnknownVariableError:
+    A variable was used before it was defined.
+
+TypeError:
+    A value has the wrong type.
+
+ConstantAssignmentError:
+    A new value was assigned to a constant.
+
+MissingValueError:
+    A variable was used before receiving a value.
+
+SyntaxError:
+    The code structure is invalid.
