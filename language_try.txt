@@ -52,10 +52,11 @@ fn draw_player():
 fn process(delta): ##runs on every frame after start
     if input.just_pressed == input.up
         player.position.y + 1
-    if input.just_pressed == ResirisGameEngine.get_input("down)
+    if input.just_pressed == input.down
         player.position.y + -1
-    if input.just_pressed == ResirisGameEngine.get_input("right)
+    if input.just_pressed == input.right
         player.position.x + 1
-    if input.just_pressed == ResirisGameEngine.get_input("left)
+    if input.just_pressed == input.left
         player.position.x + 1
     else:
+        return
