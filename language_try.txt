@@ -60,3 +60,5 @@ fn process(delta): ##runs on every frame after start
         player.position.x + 1
     else:
         return
+    
+    ##the "if" only works in its own space! If it content is empty, Error!
