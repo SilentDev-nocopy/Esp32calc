@@ -18,7 +18,7 @@ include:
 v:
     Defines a variable, also called a variant.
     Examples:
-        v number1
+        v number1 : UnknownObject
         v test_value : int = 100
 
 c:
@@ -76,8 +76,9 @@ pass:
 ########################################################################
 
 UnknownObject variant:
-    A variant with a name but no value or declared value type.
-    It can receive a value later. The first assigned value gives it a type.
+    The type used when the interpreter does not know a variant's concrete
+    type at the start. It can receive a value later, and the first assigned
+    value can reveal its concrete type.
     Example:
         v unknown_value
         unknown_value = 10
@@ -141,8 +142,9 @@ ResirisGameEngine:
     The module containing game-related systems.
     It must be included when a game uses game engine elements.
 
-ResirisModule:
-    The type used by a variant that references a Resiris module function.
+ResirisModuleObject:
+    The type used by a variant that references an object or function from
+    a Resiris or ResirisGameEngine module.
 
 Resiris.base_button:
     Provides the base input button used by the calculator example.
@@ -156,7 +158,7 @@ Resiris.print():
     variant and then called through that variant.
 
     Example:
-        v print : ResirisModule = Resiris.print()
+        v print : ResirisModuleObject = Resiris.print()
         print("Hello World")
         print(str(test_value))
         print(test_value)
@@ -202,14 +204,14 @@ text:
 <include:"Resiris.module">
 <include:"ResirisGameEngine.module">
 
-v player = Resiris.module.player
-v input = Resiris.module.input.get_input
-v input_window = ResirisGameEngine.window
+v player : ResirisModuleObject = ResirisGameEngine.module.player
+v input : ResirisModuleObject = ResirisGameEngine.module.input.get_input
+v input_window : ResirisModuleObject = ResirisGameEngine.window
 
-v up_window_input_button = ResirisGameEngine.editable_button
-v down_window_input_button = ResirisGameEngine.editable_button
-v right_window_input_button = ResirisGameEngine.editable_button
-v left_window_input_button = ResirisGameEngine.editable_button
+v up_window_input_button : ResirisModuleObject = ResirisGameEngine.editable_button
+v down_window_input_button : ResirisModuleObject = ResirisGameEngine.editable_button
+v right_window_input_button : ResirisModuleObject = ResirisGameEngine.editable_button
+v left_window_input_button : ResirisModuleObject = ResirisGameEngine.editable_button
 
 fn start():
     set_input_setting()
@@ -266,29 +268,29 @@ fn process(delta):
 
 <include:"Resiris.module">
 
-v print : ResirisModule = Resiris.print()
-v input = Resiris.base_button
+v print : ResirisModuleObject = Resiris.print()
+v input : ResirisModuleObject = Resiris.base_button
 
-v number1
-v number2
-v number3
-v number4
-v number5
-v number6
-v number7
-v number8
-v number9
-v number10
-v number11
-v number12
-v number13
-v number14
-v number15
-v number16
-v number17
-v number18
-v number19
-v number20
+v number1 : UnknownObject
+v number2 : UnknownObject
+v number3 : UnknownObject
+v number4 : UnknownObject
+v number5 : UnknownObject
+v number6 : UnknownObject
+v number7 : UnknownObject
+v number8 : UnknownObject
+v number9 : UnknownObject
+v number10 : UnknownObject
+v number11 : UnknownObject
+v number12 : UnknownObject
+v number13 : UnknownObject
+v number14 : UnknownObject
+v number15 : UnknownObject
+v number16 : UnknownObject
+v number17 : UnknownObject
+v number18 : UnknownObject
+v number19 : UnknownObject
+v number20 : UnknownObject
 
 fn start():
     Resiris.base_window_clear()
