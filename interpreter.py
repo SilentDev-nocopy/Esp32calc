@@ -72,6 +72,7 @@ class Interpreter:
     def run(self, program: Program) -> dict[str, Variable]:
         for statement in program.statements:
             self.execute(statement)
+
         return self.variables
 
     def execute(self, statement):
@@ -105,16 +106,29 @@ class Interpreter:
                 raise MissingValueError(
                     f"{statement.name}: UnknownObject első értékadása szükséges"
                 )
+
             raise MissingValueError(
                 f"{statement.name}: a deklarációhoz jelenleg érték kell"
             )
 
         value = self.evaluate(statement.value)
-        value = self.validate_and_coerce(statement.type_name, value, statement.name)
+
+        actual_type = statement.type_name
+
+        # UnknownObject esetén az első értékadás dönti el
+        # a tényleges Resiris típust.
+        if statement.type_name == "UnknownObject":
+            actual_type = self.infer_type_name(value)
+
+        value = self.validate_and_coerce(
+            actual_type,
+            value,
+            statement.name,
+        )
 
         self.variables[statement.name] = Variable(
             value=value,
-            type_name=statement.type_name,
+            type_name=actual_type,
             is_constant=(statement.kind == "c"),
         )
 
@@ -135,22 +149,39 @@ class Interpreter:
 
         if statement.operator == "=":
             new_value = right
+
         elif statement.operator == "+=":
             new_value = self.apply_binary(
-                variable.value, "+", right, statement.target
+                variable.value,
+                "+",
+                right,
+                statement.target,
             )
+
         elif statement.operator == "-=":
             new_value = self.apply_binary(
-                variable.value, "-", right, statement.target
+                variable.value,
+                "-",
+                right,
+                statement.target,
             )
+
         elif statement.operator == "*=":
             new_value = self.apply_binary(
-                variable.value, "*", right, statement.target
+                variable.value,
+                "*",
+                right,
+                statement.target,
             )
+
         elif statement.operator == "/=":
             new_value = self.apply_binary(
-                variable.value, "/", right, statement.target
+                variable.value,
+                "/",
+                right,
+                statement.target,
             )
+
         else:
             raise RuntimeErrorResiris(
                 f"Ismeretlen értékadási operátor: {statement.operator}"
@@ -168,10 +199,12 @@ class Interpreter:
 
         if isinstance(expression, Name):
             variable = self.variables.get(expression.name)
+
             if variable is None:
                 raise UnknownVariableError(
                     f"{expression.name}: ismeretlen név"
                 )
+
             return variable.value
 
         if isinstance(expression, UnaryExpr):
@@ -182,6 +215,7 @@ class Interpreter:
                     raise TypeErrorResiris(
                         f"unáris + csak számra használható: {value!r}"
                     )
+
                 return +value
 
             if expression.operator == "-":
@@ -189,6 +223,7 @@ class Interpreter:
                     raise TypeErrorResiris(
                         f"unáris - csak számra használható: {value!r}"
                     )
+
                 return -value
 
             raise RuntimeErrorResiris(
@@ -198,8 +233,12 @@ class Interpreter:
         if isinstance(expression, BinaryExpr):
             left = self.evaluate(expression.left)
             right = self.evaluate(expression.right)
+
             return self.apply_binary(
-                left, expression.operator, right, None
+                left,
+                expression.operator,
+                right,
+                None,
             )
 
         raise RuntimeErrorResiris(
@@ -208,48 +247,86 @@ class Interpreter:
         )
 
     def apply_binary(self, left, operator, right, target_name):
-        # bool Pythonban az int leszármazottja, ezért külön kezeljük.
-        left_is_number = isinstance(left, (int, float)) and not isinstance(left, bool)
-        right_is_number = isinstance(right, (int, float)) and not isinstance(right, bool)
+        # bool Pythonban az int leszármazottja,
+        # ezért külön kezeljük.
+        left_is_number = (
+            isinstance(left, (int, float))
+            and not isinstance(left, bool)
+        )
+
+        right_is_number = (
+            isinstance(right, (int, float))
+            and not isinstance(right, bool)
+        )
 
         if operator in {"+", "-", "*", "/", "%"}:
             if not (left_is_number and right_is_number):
                 raise TypeErrorResiris(
                     f"{operator}: numerikus operandusok szükségesek; "
-                    f"kapott: {type(left).__name__}, {type(right).__name__}"
+                    f"kapott: {type(left).__name__}, "
+                    f"{type(right).__name__}"
                 )
 
             if operator == "+":
                 return left + right
+
             if operator == "-":
                 return left - right
+
             if operator == "*":
                 return left * right
+
             if operator == "/":
                 if right == 0:
                     raise RuntimeErrorResiris("nullával való osztás")
+
                 return left / right
+
             if operator == "%":
                 if right == 0:
                     raise RuntimeErrorResiris("nullával való modulo")
+
                 return left % right
 
         if operator in {"==", "!=", ">", "<", ">=", "<="}:
             if operator == "==":
                 return left == right
+
             if operator == "!=":
                 return left != right
+
             if operator == ">":
                 return left > right
+
             if operator == "<":
                 return left < right
+
             if operator == ">=":
                 return left >= right
+
             if operator == "<=":
                 return left <= right
 
         raise RuntimeErrorResiris(
             f"Ismeretlen bináris operátor: {operator}"
+        )
+
+    def infer_type_name(self, value):
+        if isinstance(value, bool):
+            return "bool"
+
+        if isinstance(value, int):
+            return "int"
+
+        if isinstance(value, float):
+            return "float"
+
+        if isinstance(value, str):
+            return "string"
+
+        raise TypeErrorResiris(
+            f"UnknownObject: nem meghatározható típus: "
+            f"{type(value).__name__}"
         )
 
     def validate_and_coerce(self, type_name, value, name):
@@ -260,29 +337,37 @@ class Interpreter:
         if type_name == "int":
             if isinstance(value, bool) or not isinstance(value, int):
                 raise TypeErrorResiris(
-                    f"{name}: int érték szükséges, kapott: {type(value).__name__}"
+                    f"{name}: int érték szükséges, "
+                    f"kapott: {type(value).__name__}"
                 )
+
             return value
 
         if type_name == "float":
             if isinstance(value, bool) or not isinstance(value, (int, float)):
                 raise TypeErrorResiris(
-                    f"{name}: float érték szükséges, kapott: {type(value).__name__}"
+                    f"{name}: float érték szükséges, "
+                    f"kapott: {type(value).__name__}"
                 )
+
             return float(value)
 
         if type_name == "string":
             if not isinstance(value, str):
                 raise TypeErrorResiris(
-                    f"{name}: string érték szükséges, kapott: {type(value).__name__}"
+                    f"{name}: string érték szükséges, "
+                    f"kapott: {type(value).__name__}"
                 )
+
             return value
 
         if type_name == "bool":
             if not isinstance(value, bool):
                 raise TypeErrorResiris(
-                    f"{name}: bool érték szükséges, kapott: {type(value).__name__}"
+                    f"{name}: bool érték szükséges, "
+                    f"kapott: {type(value).__name__}"
                 )
+
             return value
 
         if type_name == "ResirisModuleObject":

@@ -1,6 +1,3 @@
-## Első futtatható Interpreter teszt
+v value UnknownObject = 10
 
-v number int = 10
-v other int = 5
-
-number = number + other
+value = 25
