@@ -1,8 +1,7 @@
 Resiris language reference
 ###############################################################################
 
-## Resiris is based on Godot/GDScript structure.
-## Indentation determines which block each line belongs to.
+
 ## A line beginning with ## is a comment and is ignored by the interpreter.
 
 
@@ -55,11 +54,11 @@ elif:
 else:
     Runs when the preceding if or elif conditions are false.
 
-match:
+mat:
     Compares one value with multiple possible options and runs the matching
     branch.
     Example:
-        match input.just_pressed:
+        mat input.just_pressed:
             "1":
                 print(number1)
 
@@ -128,7 +127,7 @@ str():
 
 
 ########################################################################
-## 3. Modules and Resiris API
+## 3. Modules
 ########################################################################
 
 Resiris.module:
@@ -187,7 +186,7 @@ fn start():
     Resiris.base_window_clear()
 
 fn process():
-    match input.just_pressed:
+    mat input.just_pressed:
         "1":
             print(number1)
         "2":
