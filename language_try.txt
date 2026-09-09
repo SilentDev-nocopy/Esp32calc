@@ -1,0 +1,61 @@
+<include:"Resiris.module"> ##conatins everything
+
+##we have a module named ResirisGameEngine but
+##this only for games! the main Resiris.module contains everything 
+##so it easiet to include everything
+
+v player = Resiris.module.player ##sets the player variant to the player( which has a given ASCII icon)
+v input = Resiris.module.input.get_input
+v input_window = ResirisGameEngine.window
+
+v up_window_input_button = ResirisGameEngine.editable_button
+v down_window_input_button = ResirisGameEngine.editable_button
+v right_window_input_button = ResirisGameEngine.editable_button
+v left_window_input_button = ResirisGameEngine.editable_button
+
+fn start(): ##ON start it runs this function
+    set_input_setting()
+    draw_player()
+
+fn set_input_setting():
+    input_window.show_window() ##shows the given window
+    input_window.title = "Input Window" ##sets window title
+
+    ##up
+    up_window_input_button.init() ##instantiates the editable button
+    up_window_input_button.text = "Press a button to set the 'up' direction" ##sets button title to the given title
+    input.up = await input.wait_for_next_press() ##waits until it gets a random input (except MODE)
+    up_window_input_button.input = input.up ##sets the given button input to the random button that we earlyer set
+
+    ##down
+    down_window_input_button.init()
+    down_window_input_button.text = "Press a button to set the 'down' direction"
+    input.down = await input.wait_for_next_press() 
+    down_window_input_button.input = input.down
+
+    ##right
+    right_window_input_button.init()
+    right_window_input_button.text = "Press a button to set the 'right' direction"
+    input.right = await input.wait_for_next_press() 
+    right_window_input_button.input = input.right
+
+    ##left
+    left_window_input_button.init()
+    left_window_input_button.text = "Press a button to set the 'left' direction"
+    input.left = await input.wait_for_next_press() 
+    left_window_input_button.input = input.left
+
+fn draw_player():
+    player.init() ##instantiates the player
+    player.position = Vector2(1 , 1) ##sets player position (origin is at 0 , 0)
+
+fn process(delta): ##runs on every frame after start
+    if input.just_pressed == input.up
+        player.position.y + 1
+    if input.just_pressed == ResirisGameEngine.get_input("down)
+        player.position.y + -1
+    if input.just_pressed == ResirisGameEngine.get_input("right)
+        player.position.x + 1
+    if input.just_pressed == ResirisGameEngine.get_input("left)
+        player.position.x + 1
+    else:
