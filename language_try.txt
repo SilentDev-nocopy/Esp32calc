@@ -1,12 +1,208 @@
-GameEngine idea
-#########################################################
-<include:"Resiris.module"> ## includes the general Resiris module
+Resiris language reference
+###############################################################################
 
-## We have a module named ResirisGameEngine, but it is only for games.
-## The main Resiris.module contains the general system elements.
-## Include both modules when the program needs game and system features.
+## Resiris is based on Godot/GDScript structure.
+## Indentation determines which block each line belongs to.
+## A line beginning with ## is a comment and is ignored by the interpreter.
 
-v player = Resiris.module.player ## sets the player variant to the player object
+
+########################################################################
+## 1. Language syntax
+########################################################################
+
+include:
+    Includes another module or file in the program.
+    Example:
+        <include:"Resiris.module">
+
+v:
+    Defines a variable, also called a variant.
+    Examples:
+        v number1
+        v test_value : int = 100
+
+c:
+    Defines a constant. Its value and value type cannot be changed after
+    definition.
+    Example:
+        c random_value : int = 1
+
+fn:
+    Defines a function. A function is a named block of code that can be
+    called later.
+    Example:
+        fn start():
+            Resiris.base_window_clear()
+
+start():
+    The entry function. It runs once when the program starts.
+
+process(delta):
+    A function that runs on every frame while the game is running.
+    delta stores the time passed since the previous frame.
+
+await:
+    Waits for an event or result before continuing the function.
+    Example:
+        input.up = await input.wait_for_next_press()
+
+if:
+    Checks a condition. Its block runs only when the condition is true.
+
+elif:
+    Checks another condition when the previous if condition was false.
+
+else:
+    Runs when the preceding if or elif conditions are false.
+
+match:
+    Compares one value with multiple possible options and runs the matching
+    branch.
+    Example:
+        match input.just_pressed:
+            "1":
+                print(number1)
+
+return:
+    Stops the current function and optionally returns a value.
+
+pass:
+    Performs no operation. It is a placeholder for an empty block.
+    It does not stop the function or ignore code after the block.
+
+
+########################################################################
+## 2. Variants, constants, and value types
+########################################################################
+
+UnknownObject variant:
+    A variant with a name but no value or declared value type.
+    It can receive a value later. The first assigned value gives it a type.
+    Example:
+        v unknown_value
+        unknown_value = 10
+
+Typed variant:
+    A variant with a declared value type. Every assigned value must use
+    that type.
+    Example:
+        v score : int
+        score = 10
+
+int:
+    Stores a whole number.
+    Example: v lives : int = 3
+
+float:
+    Stores a number with a fractional part.
+    Example: v speed : float = 1.5
+
+string:
+    Stores text.
+    Example: v player_name : string = "Player"
+
+bool:
+    Stores true or false.
+    Example: v is_alive : bool = true
+
+Vector2:
+    Stores two-dimensional x and y coordinates.
+    Example:
+        v position = Vector2(1, 1)
+
+=:
+    Assigns a value to a variant.
+
++=:
+    Adds a value to a variant.
+
+-=:
+    Subtracts a value from a variant.
+
+*=:
+    Multiplies a variant by a value.
+
+/=:
+    Divides a variant by a value.
+
+str():
+    Converts a value into text.
+    Example: str(test_value)
+
+
+########################################################################
+## 3. Modules and Resiris API
+########################################################################
+
+Resiris.module:
+    The main Resiris module containing general system elements.
+
+ResirisGameEngine:
+    The module containing game-related systems.
+    It must be included when a game uses game engine elements.
+
+ResirisModule:
+    The type used by a variant that references a Resiris module function.
+
+Resiris.base_button:
+    Provides the base input button used by the calculator example.
+
+Resiris.base_window_clear():
+    Clears the base window before the calculator starts.
+
+Resiris.print():
+    The Resiris module function that displays text or a value.
+    It is not a built-in language keyword. It can be assigned to a callable
+    variant and then called through that variant.
+
+    Example:
+        v print : ResirisModule = Resiris.print()
+        print("Hello World")
+        print(str(test_value))
+        print(test_value)
+
+player:
+    The player object. After initialization, its position can be set with
+    the position property.
+
+input:
+    The input system object. just_pressed represents the button pressed
+    during the current frame.
+
+window:
+    A window object that can be displayed and configured.
+
+editable_button:
+    A button to which the user can assign an input.
+
+init():
+    Initializes or creates an object.
+
+show_window():
+    Displays a window.
+
+wait_for_next_press():
+    Waits for the next valid user button press and returns that input.
+    Reserved inputs such as MODE are ignored.
+
+position:
+    A property that stores an object's position.
+
+title:
+    A property that stores a window's displayed title.
+
+text:
+    A property that stores a button's displayed text.
+
+
+########################################################################
+## 4. GameEngine example
+########################################################################
+
+<include:"Resiris.module">
+<include:"ResirisGameEngine.module">
+
+v player = Resiris.module.player
 v input = Resiris.module.input.get_input
 v input_window = ResirisGameEngine.window
 
@@ -15,43 +211,43 @@ v down_window_input_button = ResirisGameEngine.editable_button
 v right_window_input_button = ResirisGameEngine.editable_button
 v left_window_input_button = ResirisGameEngine.editable_button
 
-fn start(): ## Runs this function once when the program starts.
+fn start():
     set_input_setting()
     draw_player()
 
 fn set_input_setting():
-    input_window.show_window() ##shows the given window
-    input_window.title = "Input Window" ##sets window title
+    input_window.show_window()
+    input_window.title = "Input Window"
 
-    ##up
-    up_window_input_button.init() ##instantiates the editable button
-    up_window_input_button.text = "Press a button to set the 'up' direction" ##sets button title to the given title
-    input.up = await input.wait_for_next_press() ## waits for a valid input except MODE
-    up_window_input_button.input = input.up ## assigns the selected input to the button
+    ## Configure the up direction.
+    up_window_input_button.init()
+    up_window_input_button.text = "Press a button to set the 'up' direction"
+    input.up = await input.wait_for_next_press()
+    up_window_input_button.input = input.up
 
-    ##down
+    ## Configure the down direction.
     down_window_input_button.init()
     down_window_input_button.text = "Press a button to set the 'down' direction"
-    input.down = await input.wait_for_next_press() 
+    input.down = await input.wait_for_next_press()
     down_window_input_button.input = input.down
 
-    ##right
+    ## Configure the right direction.
     right_window_input_button.init()
     right_window_input_button.text = "Press a button to set the 'right' direction"
-    input.right = await input.wait_for_next_press() 
+    input.right = await input.wait_for_next_press()
     right_window_input_button.input = input.right
 
-    ##left
+    ## Configure the left direction.
     left_window_input_button.init()
     left_window_input_button.text = "Press a button to set the 'left' direction"
-    input.left = await input.wait_for_next_press() 
+    input.left = await input.wait_for_next_press()
     left_window_input_button.input = input.left
 
 fn draw_player():
-    player.init() ## initializes the player
-    player.position = Vector2(1, 1) ## origin is at 0, 0
+    player.init()
+    player.position = Vector2(1, 1)
 
-fn process(delta): ##runs on every frame after start
+fn process(delta):
     if input.just_pressed == input.up:
         player.position.y += 1
     elif input.just_pressed == input.down:
@@ -61,14 +257,16 @@ fn process(delta): ##runs on every frame after start
     elif input.just_pressed == input.left:
         player.position.x -= 1
     else:
-        return
+        pass
 
-#######################################################################
 
-Resiris CalcEngine
 ########################################################################
+## 5. CalcEngine example
+########################################################################
+
 <include:"Resiris.module">
 
+v print : ResirisModule = Resiris.print()
 v input = Resiris.base_button
 
 v number1
@@ -91,7 +289,6 @@ v number17
 v number18
 v number19
 v number20
-
 
 fn start():
     Resiris.base_window_clear()
@@ -142,191 +339,27 @@ fn process():
             pass
 
 
-#######################################################################
-
-Resiris language elements and defined words
 ########################################################################
-
-## The basic keywords of the language
-
-include:
-    Includes another module or file in the program.
-    Example: <include:"Resiris.module">
-
-v:
-    Defines a variable.
-    Example: v number1
-c:
-    Defines a constant.
-    Its value and value type cannot be changed after definition.
-fn:
-    Defines a function. A function is a named block of code
-    that can be called later.
-    Example: fn start():
-
-start():
-    A function that runs once when the program starts.
-
-process(delta):
-    A function that runs on every frame while the game is running.
-    delta stores the time passed since the previous frame.
-
-await:
-    Waits for an event or result before continuing the function.
-    Example: input.up = await input.wait_for_next_press()
-
-if:
-    Checks a condition. Its block runs only when the condition is true.
-
-elif:
-    Checks another condition when the previous if condition was false.
-
-else:
-    The counterpart of if. It runs when the if condition is false.
-
-match:
-    Compares a value with multiple possible options.
-    The code in the matching branch is executed.
-
-return:
-    Stops the current function and optionally returns a value.
-
-=:
-    Assigns a value to a variable.
-
-+=:
-    Adds a value to a variable.
-
--=:
-    Subtracts a value from a variable.
-
-*=:
-    Multiplies a variable by a value.
-
-/=:
-    Divides a variable by a value.
-
-pass:
-    Performs no operation. It is used as a placeholder for an empty block.
-    It does not stop the function and does not ignore code after the block.
-
-## Defined Resiris and ResirisGameEngine elements
-
-Resiris.module:
-    The main Resiris module, containing the basic system elements.
-
-ResirisGameEngine:
-    The module containing the game-related systems.
-
-ResirisModule:
-    The type used by a variant that references a Resiris module function.
-
-player:
-    The player object. After initialization, its position can be set
-    with the position property.
-
-input:
-    The input system object. just_pressed represents the button
-    that was just pressed during the current frame.
-
-window:
-    A window object that can be displayed and configured.
-
-editable_button:
-    A button to which the user can assign an input.
-
-Vector2:
-    A value that stores two-dimensional coordinates, such as Vector2(1, 1).
-
-init():
-    Initializes or creates an object.
-
-show_window():
-    Displays the window.
-
-wait_for_next_press():
-    Waits for the next user button press and returns the pressed button.
-
-position:
-    A property that stores an object's position.
-
-title and text:
-    Properties that store the displayed text of a window or button.
-
-int:
-    Stores a whole number.
-
-float:
-    Stores a number with a fractional part.
-
-string:
-    Stores text.
-
-bool:
-    Stores true or false.
-
-str():
-    Converts a value into text.
-
-print:
-    A callable variant assigned to the Resiris.print() module function.
-    It can be called as print(value) after this declaration:
-    v print : ResirisModule = Resiris.print()
-    It is not a built-in keyword of the language.
-
-## A line beginning with ## is a comment. The interpreter ignores the
-## comment text after ## on that line.
-
-## Indentation determines which block each line of code belongs to.
-## The language structure is based on Godot/GDScript, but Resiris has
-## its own keywords and objects that must be defined separately.
-
-Resiris.base_button:
-    Provides the base input button used by the calculator example.
-
-Resiris.base_window_clear():
-    Clears the base window before the calculator starts.
-
-
-##################################################################
-
-Some Resiris command
+## 6. Common interpreter errors
 ########################################################################
-v print : ResirisModule = Resiris.print()
-v test_value : int = 100
-## print text:
-print("Hello World")
-## print value as text:
-print(str(test_value))
-## print value:
-print(test_value)
-
-If a variable has a name but no value or value type, it is an
-"UnknownObject variant". It can receive a value in the future.
-The first assigned value gives it a value type.
-
-If a value type is declared, every assigned value must use that type.
-
-c random_value : int = 1
-random_value = "text" ## TypeError!
-
-v asd1 : int = 1.1 ## TypeError!
-c asd2 : int = 1.1 ## TypeError!
-v asd3 : int ## Declared type, value can be assigned later.
-
-## Common interpreter errors
 
 UnknownVariableError:
-    A variable was used before it was defined.
+    A variant was used before it was defined.
 
 TypeError:
     A value has the wrong type.
+    Example:
+        c random_value : int = 1
+        random_value = "text"
 
 ConstantAssignmentError:
     A new value was assigned to a constant.
 
 MissingValueError:
-    A variable was used before receiving a value.
+    A variant was used before receiving a value.
 
 SyntaxError:
     The code structure is invalid.
+
+InvalidInputError:
+    An input is not valid for the current input action.
