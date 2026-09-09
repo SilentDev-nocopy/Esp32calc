@@ -1,0 +1,97 @@
+cpu, alaplap: https://www.amazon.com/HiLetgo-ESP-WROOM-32-Development-Microcontroller-Integrated/dp/B0718T232Z/ref=sxin_15_pa_sp_search_thematic-asin_sspa?cv_ct_cx=esp32&s=electronics&sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D&sr=1-1-925d4041-2745-4edd-b995-62e9e595df4e-spons&aref=F2aiKD08T2&sp_csd=d2lkZ2V0TmFtZT1zcF9zZWFyY2hfdGhlbWF0aWM
+billentyüzet: https://www.amazon.com/Hilitchi-250-Pcs-Tactile-Momentary-Assortment/dp/B0722LBKV7/ref=sr_1_4?sr=8-4
+kijelzö: https://openelab.io/products/openelab-2-42-inch-oled?variant=45588795654342&country=DE&currency=EUR
+
+Saját számológép – komponensek
+
+A cél egy saját, programozható tudományos számológép, főleg iskolai és otthoni használatra.
+
+1. ESP32-WROOM-32
+
+CPU: Dual-Core Xtensa LX6
+Órajel: max. 240 MHz
+RAM: kb. 520 KB SRAM
+Flash: tipikusan 4 MB
+Wi-Fi: 2.4 GHz
+Bluetooth: Classic + BLE
+GPIO: 34
+ADC: 12-bit
+Kommunikáció: UART, SPI, I²C
+Táp: 3,3 V a chip számára
+Fejlesztőpanel: USB-n keresztül programozható
+
+Ez lesz a számológép agya. Ez kezeli a gombokat, a kijelzőt, a számításokat és a saját programokat.
+
+2. OLED kijelző
+
+Típus: OLED
+Méret: 2,42"
+Felbontás: 128 × 64 pixel
+Szín: monokróm
+Vezérlő: SSD1309
+Kommunikáció: I²C / SPI
+Táp: 3,3–5 V
+Érintés: nincs
+Méret: kb. 71 × 43,5 mm
+
+A projektben valószínűleg I²C kapcsolaton keresztül fog kommunikálni az ESP32-vel.
+
+3. Billentyűzet
+
+Kapcsolók: tactile push button
+Lábak: 4
+Kivitel: Through-Hole (THT)
+Méret: 12 × 12 mm-es változatok
+Készlet: 250 db, többféle méretben/magasságban
+Tervezett gombszám: kb. 40–50 db
+Bekötés: gombmátrix
+
+A gombokkal lesznek elérhetők az alapműveletek és a tudományos funkciók, például sin, cos, tg, log, ln, gyök, hatvány, zárójelek stb.
+
+4. Kommunikáció és adatmozgatás
+
+PC ↔ számológép:
+Az ESP32 fejlesztőpanel USB-n keresztül csatlakozik a számítógéphez. Ezen keresztül lehet majd firmware-t feltölteni, hibakeresni és később saját adatátviteli rendszert készíteni.
+
+Programok mozgatása:
+A számológéphez saját programformátumot készíthetünk. A PC-s programból USB-n keresztül át lehet küldeni a számológépre a saját programokat, amelyeket az ESP32 Flash memóriájában tárolhatunk.
+
+Lehetséges rendszer:
+PC → USB → ESP32 → Flash memória
+PC → USB → ESP32 → program betöltése/futtatása
+
+Később készíthetünk hozzá egy saját PC-s programot, amiben meg lehet írni, szerkeszteni, feltölteni és törölni a számológép programjait.
+
+ESP32 és kijelző:
+I²C vagy SPI kapcsolat.
+
+ESP32 és billentyűzet:
+GPIO-k segítségével, mátrixos bekötéssel.
+
+5. Programozás
+
+Firmware: C/C++
+Fejlesztés: VS Code + PlatformIO
+A firmware feladata: számítási motor, billentyűzet, OLED, memória, menürendszer és programkezelés.
+
+Később saját egyszerű programnyelvet/interpretert is készíthetünk, így a számológépre külön programokat lehet írni.
+
+6. Tápellátás
+
+Jelenleg nincs kiválasztva.
+Először elkészítjük és megmérjük a prototípus fogyasztását, utána választjuk ki az elemes vagy más tápellátást.
+
+7. További alkatrészek
+
+Breadboard – első prototípushoz
+Jumper/Dupont vezetékek – bekötéshez
+PCB – csak a működő prototípus után
+Ház – később, várhatóan saját/3D nyomtatott kivitel
+
+Jelenlegi fő alkatrészek
+
+ESP32-WROOM-32
+2,42" 128×64 SSD1309 monokróm OLED
+250 db-os tactile switch készlet
+Tápellátás: még nincs kiválasztva
+SD-kártya: egyelőre nem szükségesw
