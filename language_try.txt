@@ -145,39 +145,12 @@ Resiris.print():
         print(str(test_value))
         print(test_value)
 
-player:
-    The player object. After initialization, its position can be set with
-    the position property.
-
 input:
     The input system object. just_pressed represents the button pressed
     during the current frame.
 
 window:
     A window object that can be displayed and configured.
-
-editable_button:
-    A button to which the user can assign an input.
-
-init():
-    Initializes or creates an object.
-
-show_window():
-    Displays a window.
-
-wait_for_next_press():
-    Waits for the next valid user button press and returns that input.
-    Reserved inputs such as MODE are ignored.
-
-position:
-    A property that stores an object's position.
-
-title:
-    A property that stores a window's displayed title.
-
-text:
-    A property that stores a button's displayed text.
-
 
 
 ########################################################################
