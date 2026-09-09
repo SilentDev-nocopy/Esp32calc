@@ -52,14 +52,14 @@ fn draw_player():
     player.position = Vector2(1 , 1) ##sets player position (origin is at 0 , 0)
 
 fn process(delta): ##runs on every frame after start
-    if input.just_pressed == input.up
-        player.position.y + 1
-    if input.just_pressed == input.down
-        player.position.y + -1
-    if input.just_pressed == input.right
-        player.position.x + 1
-    if input.just_pressed == input.left
-        player.position.x + 1
+    if input.just_pressed == input.up:
+        player.position.y += 1
+    if input.just_pressed == input.down:
+        player.position.y += -1 ##or  -=1
+    if input.just_pressed == input.right:
+        player.position.x += 1
+    if input.just_pressed == input.left:
+        player.position.x += -1 ##or  -=1
     else:
         return
     
@@ -103,5 +103,156 @@ fn process():
         "1":
             number1
         "2":
-            number1
-    pass
+            number2
+        "3":
+            number3
+        "4":
+            number4
+        "5":
+            number5
+        "6":
+            number6
+        "7":
+            number7
+        "8":
+            number8
+        "9":
+            number9
+        "10":
+            number10
+        "11":
+            number11
+        "12":
+            number12
+        "13":
+            number13
+        "14":
+            number14
+        "15":
+            number15
+        "16":
+            number16
+        "17":
+            number17
+        "18":
+            number18
+        "19":
+            number19
+        "20":
+            number20
+        else:
+            pass
+
+
+#######################################################################
+
+Resiris language elements and defined words
+########################################################################
+
+## The basic keywords of the language
+
+include:
+    Includes another module or file in the program.
+    Example: <include:"Resiris.module">
+
+v:
+    Defines a variable.
+    Example: v number1
+c:
+    Defines a constans
+    Cant change its value or valuetype
+fn:
+    Defines a function. A function is a named block of code
+    that can be called later.
+    Example: fn start():
+
+start():
+    A function that runs once when the program starts.
+
+process(delta):
+    A function that runs on every frame while the game is running.
+    delta stores the time passed since the previous frame.
+
+await:
+    Waits for an event or result before continuing the function.
+    Example: input.up = await input.wait_for_next_press()
+
+if:
+    Checks a condition. Its block runs only when the condition is true.
+
+else:
+    The counterpart of if. It runs when the if condition is false.
+
+match:
+    Compares a value with multiple possible options.
+    The code in the matching branch is executed.
+
+pass:
+    Performs no operation. It is used as a placeholder for an empty block.
+    It does not stop the function and does not ignore code after the block.
+
+## Defined Resiris and ResirisGameEngine elements
+
+Resiris.module:
+    The main Resiris module, containing the basic system elements.
+
+ResirisGameEngine:
+    The module containing the game-related systems.
+
+player:
+    The player object. After initialization, its position can be set
+    with the position property.
+
+input:
+    The input system object. just_pressed represents the button
+    that was just pressed.
+
+window:
+    A window object that can be displayed and configured.
+
+editable_button:
+    A button to which the user can assign an input.
+
+Vector2:
+    A value that stores two-dimensional coordinates, such as Vector2(1, 1).
+
+init():
+    Initializes or creates an object.
+
+show_window():
+    Displays the window.
+
+wait_for_next_press():
+    Waits for the next user button press and returns the pressed button.
+
+position:
+    A property that stores an object's position.
+
+title and text:
+    Properties that store the displayed text of a window or button.
+
+## Indentation determines which block each line of code belongs to.
+## The language structure is based on Godot/GDScript, but Resiris has
+## its own keywords and objects that must be defined separately.
+
+
+##################################################################
+
+Some Resiris command
+########################################################################
+v print = Resiris.print
+v test_value : int = 100
+printing text: print("Hello World)
+printing value as text: print(str(value))
+print value: print(test_value)
+
+When a variant does not have a pre-set valuetype then give error cause we need the help for the interpreter!
+If we dont know if the value will go to float then already set its valuetype to float!
+If a variable is has a name but no value ot valuetype then its a "UnknownObject variant" which means that it will be set in the future and we cant set it to given value
+
+c random_value : int = 1
+random value = "text" ## Error!
+
+v asd1 : int = 1.1 ##Error!
+c asd2 : int = 1.1 ##Error!
+v asd3 = 1 ##Error! MISSING VALUE TYPE!
