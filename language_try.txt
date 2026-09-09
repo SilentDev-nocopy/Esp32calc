@@ -45,7 +45,7 @@ await:
     Example:
         input.up = await input.wait_for_next_press()
 
-if
+if:
     Checks a condition. Its block runs only when the condition is true.
 
 elif:
@@ -132,27 +132,27 @@ bool:
 
 ==:
     Checks whether two values are equal. The result is true or false.
-    Example: if input.just_pressed == input.up
+    Example: if input.just_pressed == input.up:
 
 !=:
     Checks whether two values are different.
-    Example: if input.just_pressed != input.up
+    Example: if input.just_pressed != input.up:
 
 >:
     Checks whether the left value is greater than the right value.
-    Example: if score > 0
+    Example: if score > 0:
 
 <:
     Checks whether the left value is less than the right value.
-    Example: if score < 100
+    Example: if score < 100:
 
 >=:
     Checks whether the left value is greater than or equal to the right value.
-    Example: if score >= 100
+    Example: if score >= 100:
 
 <=:
     Checks whether the left value is less than or equal to the right value.
-    Example: if score <= 100
+    Example: if score <= 100:
 
 =:
     Assigns a value to a variant.

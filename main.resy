@@ -1,0 +1,6 @@
+## Első futtatható Interpreter teszt
+
+v number int = 10
+v other int = 5
+
+number = number + other
