@@ -132,40 +132,50 @@ class Interpreter:
         self.functions[statement.name] = statement
 
     def execute(self, statement):
-        if isinstance(statement, Declaration):
-            self.execute_declaration(statement)
-            return
+        try:
+            if isinstance(statement, Declaration):
+                self.execute_declaration(statement)
+                return
 
-        if isinstance(statement, Assignment):
-            self.execute_assignment(statement)
-            return
+            if isinstance(statement, Assignment):
+                self.execute_assignment(statement)
+                return
 
-        if isinstance(statement, IfStmt):
-            self.execute_if(statement)
-            return
+            if isinstance(statement, IfStmt):
+                self.execute_if(statement)
+                return
 
-        if isinstance(statement, FunctionDef):
-            return
+            if isinstance(statement, FunctionDef):
+                return
 
-        if isinstance(statement, ReturnStmt):
-            self.execute_return(statement)
-            return
+            if isinstance(statement, ReturnStmt):
+                self.execute_return(statement)
+                return
 
-        if isinstance(statement, PassStmt):
-            return
+            if isinstance(statement, PassStmt):
+                return
 
-        if isinstance(statement, PrintCmdStmt):
-            self.execute_print_cmd(statement)
-            return
+            if isinstance(statement, PrintCmdStmt):
+                self.execute_print_cmd(statement)
+                return
 
-        if isinstance(statement, ExpressionStmt):
-            self.evaluate(statement.expression)
-            return
+            if isinstance(statement, ExpressionStmt):
+                self.evaluate(statement.expression)
+                return
 
-        raise RuntimeErrorResiris(
-            f"Az Interpreter jelenlegi verziója nem támogatja: "
-            f"{type(statement).__name__}"
-        )
+            raise RuntimeErrorResiris(
+                f"Az Interpreter jelenlegi verziója nem támogatja: "
+                f"{type(statement).__name__}"
+            )
+        except RuntimeErrorResiris as error:
+            line = getattr(statement, "source_line", None)
+            column = getattr(statement, "source_column", None)
+            if line is not None and not str(error).startswith("sor "):
+                location = f"sor {line}"
+                if column is not None:
+                    location += f", oszlop {column}"
+                raise type(error)(f"{location}: {error}") from error
+            raise
 
     def execute_declaration(self, statement: Declaration):
         current_scope = self.current_scope()

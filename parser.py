@@ -87,6 +87,14 @@ class Parser:
             pass
 
     def parse_statement(self):
+        """Parse one statement and attach its source position to the AST node."""
+        token = self.current()
+        statement = self._parse_statement_impl()
+        statement.source_line = token.line
+        statement.source_column = token.column
+        return statement
+
+    def _parse_statement_impl(self):
         token = self.current()
 
         if token.type is TokenType.INCLUDE:
@@ -121,14 +129,15 @@ class Parser:
             )
         if token.type is TokenType.RETURN:
             return self.parse_return()
-
         if token.type is TokenType.PASS:
+            # `pass` a sor elején az egész aktuális sort kihagyja.
+            # A tokenizer már minden sor végét NEWLINE tokennel jelöli,
+            # ezért a parser a `pass` után érkező teljes sort elfogyasztja.
             self.advance()
             while not self.at(TokenType.NEWLINE) and not self.at(TokenType.EOF):
                 self.advance()
             self.match(TokenType.NEWLINE)
             return PassStmt()
-    
         if token.type is TokenType.AWAIT:
             self.advance()
             expression = self.parse_expression()

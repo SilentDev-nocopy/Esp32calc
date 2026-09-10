@@ -1,6 +1,8 @@
-v double FunctionalObject = FunctionalObject.new(x):
-    return x * 2
 
-v result int = double(5)
+fn test():
+    v secret int = 42
+    print_cmd(secret)
 
-print_cmd(result)
+test()
+
+print_cmd(secret)

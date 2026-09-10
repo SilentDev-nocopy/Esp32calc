@@ -1,0 +1,8 @@
+fn asd():
+    print_cmd("asd")
+    pass print_cmd("asd")
+
+asd()
+
+pass print_cmd("ez is ki van hagyva")
+print_cmd("utána")
