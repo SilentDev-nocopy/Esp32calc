@@ -7,7 +7,7 @@ from tokenizer import Token, TokenType, ResirisSyntaxError
 from ast_nodes import (
     Program, Include, Declaration, FunctionDef, IfStmt, ReturnStmt, PassStmt,
     AwaitStmt, PrintCmdStmt, Assignment, ExpressionStmt, Literal, Name, UnaryExpr,
-    BinaryExpr, CallExpr,
+    BinaryExpr, CallExpr, FunctionalObjectDef,
 )
 
 
@@ -25,6 +25,7 @@ class Parser:
         TokenType.TYPE_STRING: "string",
         TokenType.TYPE_BOOL: "bool",
         TokenType.TYPE_RESIRIS_MODULE_OBJECT: "ResirisModuleObject",
+        TokenType.TYPE_FUNCTIONAL_OBJECT: "FunctionalObject",
     }
 
     ASSIGNMENT_TOKENS = {
@@ -164,10 +165,29 @@ class Parser:
 
         value = None
         if self.match(TokenType.ASSIGN):
-            value = self.parse_expression()
+            if type_name == "FunctionalObject":
+                value = self.parse_functional_object()
+            else:
+                value = self.parse_expression()
 
-        self.expect(TokenType.NEWLINE, "a deklaráció végén sorvége kell")
+        if not (type_name == "FunctionalObject" and isinstance(value, FunctionalObjectDef)):
+            self.expect(TokenType.NEWLINE, "a deklaráció végén sorvége kell")
         return Declaration(kind, name.value, type_name, value)
+
+    def parse_functional_object(self) -> FunctionalObjectDef:
+        name = self.current()
+        if name.type is not TokenType.TYPE_FUNCTIONAL_OBJECT:
+            self.error(name, "a FunctionalObject értékadásának `FunctionalObject.new(...)` kell lennie")
+        self.advance()
+        self.expect(TokenType.DOT, "a `FunctionalObject` után `.` kell")
+        new_token = self.expect(TokenType.IDENTIFIER, "a `FunctionalObject.` után `new` kell")
+        if new_token.value != "new":
+            self.error(new_token, "a FunctionalObject gyártó neve `new` kell legyen")
+        parameters = self.parse_parameter_list()
+        self.expect(TokenType.COLON, "a FunctionalObject fejlécének végén `:` kell")
+        self.expect(TokenType.NEWLINE, "a `:` után sorvége kell")
+        body = self.parse_block()
+        return FunctionalObjectDef(parameters, body)
 
     def parse_function(self) -> FunctionDef:
         self.advance()  # fn

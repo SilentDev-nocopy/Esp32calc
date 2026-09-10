@@ -93,6 +93,12 @@ class BinaryExpr:
 
 
 @dataclass
+class FunctionalObjectDef:
+    parameters: list[str]
+    body: list[object]
+
+
+@dataclass
 class CallExpr:
     function: object
     arguments: list[object]

@@ -42,6 +42,7 @@ class TokenType(Enum):
     TYPE_STRING = auto()
     TYPE_BOOL = auto()
     TYPE_RESIRIS_MODULE_OBJECT = auto()
+    TYPE_FUNCTIONAL_OBJECT = auto()
 
     # Operators
     ASSIGN = auto()
@@ -68,6 +69,7 @@ class TokenType(Enum):
     COMMA = auto()
     LPAREN = auto()
     RPAREN = auto()
+    DOT = auto()
 
 
 KEYWORDS = {
@@ -93,6 +95,7 @@ KEYWORDS = {
     "string": TokenType.TYPE_STRING,
     "bool": TokenType.TYPE_BOOL,
     "ResirisModuleObject": TokenType.TYPE_RESIRIS_MODULE_OBJECT,
+    "FunctionalObject": TokenType.TYPE_FUNCTIONAL_OBJECT,
 }
 
 
@@ -157,6 +160,7 @@ class Tokenizer:
         ",": TokenType.COMMA,
         "(": TokenType.LPAREN,
         ")": TokenType.RPAREN,
+        ".": TokenType.DOT,
     }
 
     def tokenize(self, source: str) -> list[Token]:

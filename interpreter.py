@@ -16,6 +16,7 @@ from ast_nodes import (
     Program,
     PassStmt,
     ReturnStmt,
+    FunctionalObjectDef,
     UnaryExpr,
 )
 from tokenizer import ResirisSyntaxError
@@ -51,6 +52,12 @@ class ReturnSignal(Exception):
     def __init__(self, value):
         super().__init__()
         self.value = value
+
+
+@dataclass
+class FunctionalObject:
+    parameters: list[str]
+    body: list[object]
 
 
 @dataclass
@@ -178,7 +185,14 @@ class Interpreter:
                 f"{statement.name}: a deklarációhoz jelenleg érték kell"
             )
 
-        value = self.evaluate(statement.value)
+        if statement.type_name == "FunctionalObject":
+            if not isinstance(statement.value, FunctionalObjectDef):
+                raise TypeErrorResiris(
+                    f"{statement.name}: FunctionalObject.new(...) szükséges"
+                )
+            value = FunctionalObject(statement.value.parameters, statement.value.body)
+        else:
+            value = self.evaluate(statement.value)
 
         actual_type = statement.type_name
 
@@ -403,25 +417,56 @@ class Interpreter:
             )
 
         if isinstance(expression, CallExpr):
-            if not isinstance(expression.function, Name):
-                raise FunctionError(
-                    "A függvényhívás célja jelenleg függvénynév kell legyen"
-                )
-
             arguments = [
                 self.evaluate(argument)
                 for argument in expression.arguments
             ]
 
-            return self.call_function(
-                expression.function.name,
-                arguments,
+            if isinstance(expression.function, Name):
+                variable = self.find_variable(expression.function.name)
+                if variable is not None and isinstance(variable.value, FunctionalObject):
+                    return self.call_function_object(variable.value, arguments)
+
+                return self.call_function(expression.function.name, arguments)
+
+            raise FunctionError(
+                "A függvényhívás célja jelenleg név vagy FunctionalObject kell legyen"
             )
 
         raise RuntimeErrorResiris(
             f"Az Interpreter jelenlegi verziója nem ismeri ezt a kifejezést: "
             f"{type(expression).__name__}"
         )
+
+
+    def call_function_object(self, function: FunctionalObject, arguments: list[object]):
+        if len(arguments) != len(function.parameters):
+            raise FunctionError(
+                f"FunctionalObject: {len(function.parameters)} paraméter szükséges, "
+                f"de {len(arguments)} argumentum érkezett"
+            )
+
+        local_scope: dict[str, Variable] = {}
+        for parameter_name, argument_value in zip(function.parameters, arguments):
+            if parameter_name in local_scope:
+                raise FunctionError(
+                    f"FunctionalObject: duplikált paraméternév: {parameter_name}"
+                )
+            local_scope[parameter_name] = Variable(
+                value=argument_value,
+                type_name=self.infer_type_name(argument_value),
+                is_constant=False,
+            )
+
+        self.scope_stack.append(local_scope)
+        try:
+            try:
+                self.execute_block(function.body)
+            except ReturnSignal as signal:
+                return signal.value
+            return None
+        finally:
+            self.scope_stack.pop()
 
     def apply_binary(self, left, operator, right, target_name):
         left_is_number = (
@@ -551,6 +596,13 @@ class Interpreter:
                     f"kapott: {type(value).__name__}"
                 )
 
+            return value
+
+        if type_name == "FunctionalObject":
+            if not isinstance(value, FunctionalObject):
+                raise TypeErrorResiris(
+                    f"{name}: FunctionalObject érték szükséges, kapott: {type(value).__name__}"
+                )
             return value
 
         if type_name == "ResirisModuleObject":
