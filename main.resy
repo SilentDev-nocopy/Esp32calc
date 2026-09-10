@@ -1,8 +1,3 @@
-v number int = 5
+v value UnknownObject = 10
 
-if number > 20:
-    number = 100
-elif number > 10:
-    number = 50
-else:
-    number = 0
+value = "hello"
