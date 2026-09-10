@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BIN="$HOME/.local/bin"
+MIME="$HOME/.local/share/mime/packages"
+ICONS="$HOME/.local/share/icons/hicolor/scalable/mimetypes"
+APPS="$HOME/.local/share/applications"
+
+mkdir -p "$BIN" "$MIME" "$ICONS" "$APPS"
+
+# Resiris terminal command
+ln -sfn "$ROOT/bin/resiris" "$BIN/resiris"
+
+# .resy Linux file-manager integration
+if [[ -f "$ROOT/pre_packaging/linux/mime/resy.xml" ]]; then
+  cp "$ROOT/pre_packaging/linux/mime/resy.xml" "$MIME/resy.xml"
+  cp "$ROOT/pre_packaging/linux/icons/application-x-resy.svg" "$ICONS/application-x-resy.svg"
+  cp "$ROOT/pre_packaging/linux/resiris.desktop" "$APPS/resiris.desktop"
+
+  command -v update-mime-database >/dev/null 2>&1 && \
+    update-mime-database "$HOME/.local/share/mime" >/dev/null || true
+  command -v update-desktop-database >/dev/null 2>&1 && \
+    update-desktop-database "$APPS" >/dev/null 2>&1 || true
+  command -v xdg-mime >/dev/null 2>&1 && \
+    xdg-mime default resiris.desktop application/x-resy || true
+fi
+
+# VS Code Seti-based .resy icon integration
+CODE_CMD=""
+for cmd in code code-insiders codium; do
+  if command -v "$cmd" >/dev/null 2>&1; then
+    CODE_CMD="$cmd"
+    break
+  fi
+done
+
+VSIX="$ROOT/pre_packaging/vscode/build/resiris-seti-file-icons-0.1.0.vsix"
+if [[ -n "$CODE_CMD" ]]; then
+  if [[ ! -f "$VSIX" && -f "$ROOT/pre_packaging/vscode/build_vsix.py" ]]; then
+    if ! python3 "$ROOT/pre_packaging/vscode/build_vsix.py" >/dev/null 2>&1; then
+      echo "WARNING: Could not build the VS Code extension; .resy Linux integration was still installed."
+    fi
+  fi
+
+  if [[ -f "$VSIX" ]]; then
+    "$CODE_CMD" --install-extension "$VSIX" --force
+  else
+    echo "WARNING: VS Code extension package is not available; .resy Linux integration was still installed."
+  fi
+else
+  echo "WARNING: VS Code CLI not found; .resy Linux integration was still installed."
+fi
+
+echo "Resiris installed."
+echo "Run: resiris <file.resy>"

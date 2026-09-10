@@ -1,6 +1,0 @@
-v a int = 5
-v b int = 10
-
-print_cmd((a + b) * 2)
-print_cmd(-(a + b))
-print_cmd(a * (b + 2))

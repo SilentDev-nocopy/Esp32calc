@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ast_nodes import (
+from .ast_nodes import (
     Assignment,
     BinaryExpr,
     CallExpr,
@@ -19,7 +19,7 @@ from ast_nodes import (
     FunctionalObjectDef,
     UnaryExpr,
 )
-from tokenizer import ResirisSyntaxError
+from .tokenizer import ResirisSyntaxError
 
 
 class RuntimeErrorResiris(Exception):

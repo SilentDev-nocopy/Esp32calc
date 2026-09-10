@@ -1,5 +1,5 @@
-from tokenizer import Tokenizer, TokenType
-from parser import Parser, ast_to_dict
+from resiris.tokenizer import Tokenizer, TokenType
+from resiris.parser import Parser, ast_to_dict
 
 
 SOURCE = """\

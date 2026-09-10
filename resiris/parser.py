@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import asdict, is_dataclass
 from typing import Optional
 
-from tokenizer import Token, TokenType, ResirisSyntaxError
-from ast_nodes import (
+from .tokenizer import Token, TokenType, ResirisSyntaxError
+from .ast_nodes import (
     Program, Include, Declaration, FunctionDef, IfStmt, ReturnStmt, PassStmt,
     AwaitStmt, PrintCmdStmt, Assignment, ExpressionStmt, Literal, Name, UnaryExpr,
     BinaryExpr, CallExpr, FunctionalObjectDef,
