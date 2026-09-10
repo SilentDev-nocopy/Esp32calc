@@ -1,3 +1,8 @@
-v value UnknownObject = 10
+v number int = 5
 
-value = 25
+if number > 20:
+    number = 100
+elif number > 10:
+    number = 50
+else:
+    number = 0

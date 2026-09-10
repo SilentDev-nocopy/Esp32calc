@@ -16,6 +16,7 @@ def main():
     variables = interpreter.run(program)
 
     print("=== RESIRIS RUNTIME ===")
+
     for name, variable in variables.items():
         print(f"{name} = {variable.value!r} ({variable.type_name})")
 

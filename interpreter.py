@@ -7,6 +7,7 @@ from ast_nodes import (
     BinaryExpr,
     Declaration,
     ExpressionStmt,
+    IfStmt,
     Literal,
     Name,
     Program,
@@ -57,9 +58,9 @@ class Interpreter:
       - ==, !=, >, <, >=, <=
       - változónevek
       - literálok
+      - if / elif / else
 
     Szándékosan még NEM futtat:
-      - if / elif / else
       - fn / return
       - mat
       - await
@@ -84,12 +85,14 @@ class Interpreter:
             self.execute_assignment(statement)
             return
 
+        if isinstance(statement, IfStmt):
+            self.execute_if(statement)
+            return
+
         if isinstance(statement, ExpressionStmt):
             self.evaluate(statement.expression)
             return
 
-        # A Parser már ismeri ezeket, de az első Interpreter még nem hajtja végre.
-        # Így véletlenül sem úgy teszünk, mintha már támogatottak lennének.
         raise RuntimeErrorResiris(
             f"Az Interpreter jelenlegi verziója nem támogatja: "
             f"{type(statement).__name__}"
@@ -115,8 +118,6 @@ class Interpreter:
 
         actual_type = statement.type_name
 
-        # UnknownObject esetén az első értékadás dönti el
-        # a tényleges Resiris típust.
         if statement.type_name == "UnknownObject":
             actual_type = self.infer_type_name(value)
 
@@ -193,6 +194,37 @@ class Interpreter:
             statement.target,
         )
 
+    def execute_if(self, statement: IfStmt):
+        condition = self.evaluate(statement.condition)
+
+        if not isinstance(condition, bool):
+            raise TypeErrorResiris(
+                "az if feltételének bool értéket kell adnia"
+            )
+
+        if condition:
+            self.execute_block(statement.body)
+            return
+
+        for elif_condition, elif_body in statement.elif_blocks:
+            condition = self.evaluate(elif_condition)
+
+            if not isinstance(condition, bool):
+                raise TypeErrorResiris(
+                    "az elif feltételének bool értéket kell adnia"
+                )
+
+            if condition:
+                self.execute_block(elif_body)
+                return
+
+        if statement.else_body is not None:
+            self.execute_block(statement.else_body)
+
+    def execute_block(self, statements):
+        for statement in statements:
+            self.execute(statement)
+
     def evaluate(self, expression):
         if isinstance(expression, Literal):
             return expression.value
@@ -247,8 +279,6 @@ class Interpreter:
         )
 
     def apply_binary(self, left, operator, right, target_name):
-        # bool Pythonban az int leszármazottja,
-        # ezért külön kezeljük.
         left_is_number = (
             isinstance(left, (int, float))
             and not isinstance(left, bool)
@@ -331,7 +361,6 @@ class Interpreter:
 
     def validate_and_coerce(self, type_name, value, name):
         if type_name == "UnknownObject":
-            # Az első értékadás dönti el a tényleges értéket/típust.
             return value
 
         if type_name == "int":
