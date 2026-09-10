@@ -53,6 +53,11 @@ class AwaitStmt:
 
 
 @dataclass
+class PrintCmdStmt:
+    expression: object
+
+
+@dataclass
 class Assignment:
     target: str
     operator: str

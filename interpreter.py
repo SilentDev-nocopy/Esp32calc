@@ -5,12 +5,17 @@ from dataclasses import dataclass
 from ast_nodes import (
     Assignment,
     BinaryExpr,
+    CallExpr,
     Declaration,
     ExpressionStmt,
+    FunctionDef,
     IfStmt,
+    PrintCmdStmt,
     Literal,
     Name,
     Program,
+    PassStmt,
+    ReturnStmt,
     UnaryExpr,
 )
 from tokenizer import ResirisSyntaxError
@@ -36,6 +41,18 @@ class MissingValueError(RuntimeErrorResiris):
     pass
 
 
+class FunctionError(RuntimeErrorResiris):
+    pass
+
+
+class ReturnSignal(Exception):
+    """Belső jelzés a return végrehajtásához."""
+
+    def __init__(self, value):
+        super().__init__()
+        self.value = value
+
+
 @dataclass
 class Variable:
     value: object
@@ -45,36 +62,67 @@ class Variable:
 
 class Interpreter:
     """
-    Az első minimális Resiris Interpreter.
+    Resiris PC-s Interpreter prototípus.
 
     Jelenleg:
-      - v deklaráció
-      - c deklaráció
-      - int / float / string / bool alapértékek
-      - UnknownObject deklaráció
-      - =
-      - +=, -=, *=, /=
+      - v / c deklaráció
+      - int / float / string / bool
+      - UnknownObject
+      - =, +=, -=, *=, /=
       - +, -, *, /, %
       - ==, !=, >, <, >=, <=
       - változónevek
       - literálok
       - if / elif / else
+      - fn
+      - return
+      - függvényhívás
+      - print_cmd()
 
-    Szándékosan még NEM futtat:
-      - fn / return
+    Még NEM futtat:
       - mat
       - await
+      - include
       - modulokat
+
+    Scope:
+      - a függvény paraméterei és a benne létrehozott v-k lokálisak
+      - a globális v-k olvashatók a függvényből
+      - ez a scope-szabály jelenleg PROTOTÍPUS, nem végleges Resiris-specifikáció
     """
 
     def __init__(self):
         self.variables: dict[str, Variable] = {}
+        self.functions: dict[str, FunctionDef] = {}
+        self.scope_stack: list[dict[str, Variable]] = []
 
     def run(self, program: Program) -> dict[str, Variable]:
+        # A top-level függvénydefiníciókat előbb regisztráljuk,
+        # így egy függvény a programban való későbbi helyéről is hívható.
         for statement in program.statements:
+            if isinstance(statement, FunctionDef):
+                self.register_function(statement)
+
+        for statement in program.statements:
+            if isinstance(statement, FunctionDef):
+                continue
+
             self.execute(statement)
 
         return self.variables
+
+    def register_function(self, statement: FunctionDef):
+        if statement.name in self.functions:
+            raise FunctionError(
+                f"{statement.name}: a függvény már létezik"
+            )
+
+        if statement.name in self.variables:
+            raise FunctionError(
+                f"{statement.name}: a név már változóként használatban van"
+            )
+
+        self.functions[statement.name] = statement
 
     def execute(self, statement):
         if isinstance(statement, Declaration):
@@ -89,6 +137,20 @@ class Interpreter:
             self.execute_if(statement)
             return
 
+        if isinstance(statement, FunctionDef):
+            return
+
+        if isinstance(statement, ReturnStmt):
+            self.execute_return(statement)
+            return
+
+        if isinstance(statement, PassStmt):
+            return
+
+        if isinstance(statement, PrintCmdStmt):
+            self.execute_print_cmd(statement)
+            return
+
         if isinstance(statement, ExpressionStmt):
             self.evaluate(statement.expression)
             return
@@ -99,7 +161,9 @@ class Interpreter:
         )
 
     def execute_declaration(self, statement: Declaration):
-        if statement.name in self.variables:
+        current_scope = self.current_scope()
+
+        if statement.name in current_scope:
             raise RuntimeErrorResiris(
                 f"{statement.name}: a név már használatban van"
             )
@@ -127,14 +191,14 @@ class Interpreter:
             statement.name,
         )
 
-        self.variables[statement.name] = Variable(
+        current_scope[statement.name] = Variable(
             value=value,
             type_name=actual_type,
             is_constant=(statement.kind == "c"),
         )
 
     def execute_assignment(self, statement: Assignment):
-        variable = self.variables.get(statement.target)
+        variable = self.find_variable(statement.target)
 
         if variable is None:
             raise UnknownVariableError(
@@ -153,34 +217,22 @@ class Interpreter:
 
         elif statement.operator == "+=":
             new_value = self.apply_binary(
-                variable.value,
-                "+",
-                right,
-                statement.target,
+                variable.value, "+", right, statement.target
             )
 
         elif statement.operator == "-=":
             new_value = self.apply_binary(
-                variable.value,
-                "-",
-                right,
-                statement.target,
+                variable.value, "-", right, statement.target
             )
 
         elif statement.operator == "*=":
             new_value = self.apply_binary(
-                variable.value,
-                "*",
-                right,
-                statement.target,
+                variable.value, "*", right, statement.target
             )
 
         elif statement.operator == "/=":
             new_value = self.apply_binary(
-                variable.value,
-                "/",
-                right,
-                statement.target,
+                variable.value, "/", right, statement.target
             )
 
         else:
@@ -225,12 +277,89 @@ class Interpreter:
         for statement in statements:
             self.execute(statement)
 
+    def execute_return(self, statement: ReturnStmt):
+        if not self.scope_stack:
+            raise FunctionError(
+                "`return` csak függvényen belül használható"
+            )
+
+        value = None
+        if statement.value is not None:
+            value = self.evaluate(statement.value)
+
+        raise ReturnSignal(value)
+
+    def execute_print_cmd(self, statement: PrintCmdStmt):
+        value = self.evaluate(statement.expression)
+        print(value)
+
+    def call_function(self, function_name: str, arguments: list[object]):
+        function = self.functions.get(function_name)
+
+        if function is None:
+            raise FunctionError(
+                f"{function_name}: ismeretlen függvény"
+            )
+
+        if len(arguments) != len(function.parameters):
+            raise FunctionError(
+                f"{function_name}: {len(function.parameters)} paraméter szükséges, "
+                f"de {len(arguments)} argumentum érkezett"
+            )
+
+        local_scope: dict[str, Variable] = {}
+
+        for parameter_name, argument_value in zip(
+            function.parameters,
+            arguments,
+        ):
+            if parameter_name in local_scope:
+                raise FunctionError(
+                    f"{function_name}: duplikált paraméternév: {parameter_name}"
+                )
+
+            local_scope[parameter_name] = Variable(
+                value=argument_value,
+                type_name=self.infer_type_name(argument_value),
+                is_constant=False,
+            )
+
+        self.scope_stack.append(local_scope)
+
+        try:
+            try:
+                self.execute_block(function.body)
+            except ReturnSignal as signal:
+                return signal.value
+
+            # A return nélküli függvény jelenlegi prototípusos eredménye:
+            # None.
+            return None
+
+        finally:
+            self.scope_stack.pop()
+
+    def current_scope(self) -> dict[str, Variable]:
+        if self.scope_stack:
+            return self.scope_stack[-1]
+
+        return self.variables
+
+    def find_variable(self, name: str) -> Variable | None:
+        if self.scope_stack:
+            local_scope = self.scope_stack[-1]
+
+            if name in local_scope:
+                return local_scope[name]
+
+        return self.variables.get(name)
+
     def evaluate(self, expression):
         if isinstance(expression, Literal):
             return expression.value
 
         if isinstance(expression, Name):
-            variable = self.variables.get(expression.name)
+            variable = self.find_variable(expression.name)
 
             if variable is None:
                 raise UnknownVariableError(
@@ -273,6 +402,22 @@ class Interpreter:
                 None,
             )
 
+        if isinstance(expression, CallExpr):
+            if not isinstance(expression.function, Name):
+                raise FunctionError(
+                    "A függvényhívás célja jelenleg függvénynév kell legyen"
+                )
+
+            arguments = [
+                self.evaluate(argument)
+                for argument in expression.arguments
+            ]
+
+            return self.call_function(
+                expression.function.name,
+                arguments,
+            )
+
         raise RuntimeErrorResiris(
             f"Az Interpreter jelenlegi verziója nem ismeri ezt a kifejezést: "
             f"{type(expression).__name__}"
@@ -289,16 +434,25 @@ class Interpreter:
             and not isinstance(right, bool)
         )
 
-        if operator in {"+", "-", "*", "/", "%"}:
+        if operator == "+":
+            if isinstance(left, str) and isinstance(right, str):
+                return left + right
+
+            if not (left_is_number and right_is_number):
+                raise TypeErrorResiris(
+                    f"+: azonos típusú stringek vagy numerikus operandusok szükségesek; "
+                    f"kapott: {type(left).__name__}, {type(right).__name__}"
+                )
+
+            return left + right
+
+        if operator in {"-", "*", "/", "%"}:
             if not (left_is_number and right_is_number):
                 raise TypeErrorResiris(
                     f"{operator}: numerikus operandusok szükségesek; "
                     f"kapott: {type(left).__name__}, "
                     f"{type(right).__name__}"
                 )
-
-            if operator == "+":
-                return left + right
 
             if operator == "-":
                 return left - right

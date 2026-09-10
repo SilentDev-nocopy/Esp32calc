@@ -1,8 +1,0 @@
-## Első if Interpreter teszt
-
-v number int = 15
-
-if number > 10:
-    number = 20
-else:
-    number = 30

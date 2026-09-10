@@ -6,7 +6,7 @@ from typing import Optional
 from tokenizer import Token, TokenType, ResirisSyntaxError
 from ast_nodes import (
     Program, Include, Declaration, FunctionDef, IfStmt, ReturnStmt, PassStmt,
-    AwaitStmt, Assignment, ExpressionStmt, Literal, Name, UnaryExpr,
+    AwaitStmt, PrintCmdStmt, Assignment, ExpressionStmt, Literal, Name, UnaryExpr,
     BinaryExpr, CallExpr,
 )
 
@@ -90,8 +90,22 @@ class Parser:
 
         if token.type is TokenType.INCLUDE:
             return self.parse_include()
-        if token.type in (TokenType.V, TokenType.C):
+        if token.type is TokenType.V:
             return self.parse_declaration()
+        if token.type is TokenType.C:
+            return self.parse_declaration()
+        # `c` is a valid identifier for a varint.
+        # Constant declaration is recognized by its declaration shape:
+        # c <identifier> <type> [= expression]
+        if (
+            token.type is TokenType.IDENTIFIER
+            and token.value == "c"
+            and self.pos + 2 < len(self.tokens)
+            and self.tokens[self.pos + 1].type is TokenType.IDENTIFIER
+            and self.tokens[self.pos + 2].type in self.TYPE_TOKENS
+        ):
+            self.advance()  # contextual `c` declaration keyword
+            return self.parse_declaration_after_kind("c")
         if token.type is TokenType.FN:
             return self.parse_function()
         if token.type in (TokenType.START, TokenType.PROCESS):
@@ -116,6 +130,9 @@ class Parser:
             self.expect(TokenType.NEWLINE, "az `await` után sorvége kell")
             return AwaitStmt(expression)
 
+        if token.type is TokenType.PRINT_CMD:
+            return self.parse_print_cmd()
+
         return self.parse_assignment_or_expression()
 
     def parse_include(self) -> Include:
@@ -129,6 +146,9 @@ class Parser:
 
     def parse_declaration(self) -> Declaration:
         kind = self.advance().value
+        return self.parse_declaration_after_kind(kind)
+
+    def parse_declaration_after_kind(self, kind: str) -> Declaration:
         name = self.expect(
             TokenType.IDENTIFIER,
             "a deklarációban az első névnek azonosítónak kell lennie"
@@ -217,6 +237,24 @@ class Parser:
             else_body = self.parse_block()
 
         return IfStmt(condition, body, elif_blocks, else_body)
+
+    def parse_print_cmd(self) -> PrintCmdStmt:
+        self.advance()  # print_cmd
+        self.expect(
+            TokenType.LPAREN,
+            "a `print_cmd` után `(` kell"
+        )
+        expression = self.parse_expression()
+        self.expect(
+            TokenType.RPAREN,
+            "hiányzó `)` a `print_cmd` hívásában"
+        )
+        self.expect(
+            TokenType.NEWLINE,
+            "a `print_cmd` végén sorvége kell"
+        )
+        return PrintCmdStmt(expression)
+
 
     def parse_return(self) -> ReturnStmt:
         self.advance()
@@ -313,6 +351,14 @@ class Parser:
         if token.type is TokenType.INTEGER:
             self.advance()
             return Literal(token.value)
+
+        if token.type is TokenType.TRUE:
+            self.advance()
+            return Literal(True)
+
+        if token.type is TokenType.FALSE:
+            self.advance()
+            return Literal(False)
 
         if token.type is TokenType.FLOAT:
             self.advance()

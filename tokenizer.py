@@ -31,6 +31,9 @@ class TokenType(Enum):
     MAT = auto()
     RETURN = auto()
     PASS = auto()
+    PRINT_CMD = auto()
+    TRUE = auto()
+    FALSE = auto()
 
     # Types
     TYPE_UNKNOWN = auto()
@@ -70,7 +73,6 @@ class TokenType(Enum):
 KEYWORDS = {
     "include": TokenType.INCLUDE,
     "v": TokenType.V,
-    "c": TokenType.C,
     "fn": TokenType.FN,
     "start": TokenType.START,
     "process": TokenType.PROCESS,
@@ -81,6 +83,9 @@ KEYWORDS = {
     "mat": TokenType.MAT,
     "return": TokenType.RETURN,
     "pass": TokenType.PASS,
+    "print_cmd": TokenType.PRINT_CMD,
+    "true": TokenType.TRUE,
+    "false": TokenType.FALSE,
 
     "UnknownObject": TokenType.TYPE_UNKNOWN,
     "int": TokenType.TYPE_INT,
@@ -119,7 +124,7 @@ class Tokenizer:
       - v/c declarations
       - fn / start / process
       - if / elif / else
-      - return / pass / await
+      - return / pass / await / print_cmd
       - arithmetic/comparison/assignment operators
       - int/float/string/bool/UnknownObject/ResirisModuleObject
       - strings in single or double quotes
