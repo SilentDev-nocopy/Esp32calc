@@ -121,13 +121,14 @@ class Parser:
             )
         if token.type is TokenType.RETURN:
             return self.parse_return()
-        
+
         if token.type is TokenType.PASS:
-         self.advance()
-        while not self.at(TokenType.NEWLINE) and not self.at(TokenType.EOF):
             self.advance()
-        self.match(TokenType.NEWLINE)
-        return PassStmt()
+            while not self.at(TokenType.NEWLINE) and not self.at(TokenType.EOF):
+                self.advance()
+            self.match(TokenType.NEWLINE)
+            return PassStmt()
+    
         if token.type is TokenType.AWAIT:
             self.advance()
             expression = self.parse_expression()
