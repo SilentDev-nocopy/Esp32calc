@@ -381,6 +381,12 @@ class Parser:
     def parse_primary(self):
         token = self.current()
 
+        if token.type is TokenType.LPAREN:
+            self.advance()
+            expression = self.parse_expression()
+            self.expect(TokenType.RPAREN, "hiányzó `)` a zárójeles kifejezésben")
+            return expression
+
         if token.type is TokenType.INTEGER:
             self.advance()
             return Literal(token.value)

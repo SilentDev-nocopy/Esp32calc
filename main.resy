@@ -1,8 +1,11 @@
+v value int = 10
 
-fn test():
-    v secret int = 42
-    print_cmd(secret)
+if value > 20:
+    print_cmd("nagy")
+elif value == 10:
+    pass print_cmd("ezt kihagyja")
+    print_cmd("elif fut")
+else:
+    print_cmd("kicsi")
 
-test()
-
-print_cmd(secret)
+print_cmd("utána")
