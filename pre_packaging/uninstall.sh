@@ -1,26 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
+MIME="$HOME/.local/share/mime/packages"
+ICONS="$HOME/.local/share/icons/hicolor/scalable/mimetypes"
+APPS="$HOME/.local/share/applications"
 
-EXTENSION_ID="resiris.resiris-file-icons"
-
-echo "== Resiris VS Code extension uninstaller =="
-
-CODE_CMD=""
 for cmd in code code-insiders codium; do
-    if command -v "$cmd" >/dev/null 2>&1; then
-        CODE_CMD="$cmd"
-        break
-    fi
+  if command -v "$cmd" >/dev/null 2>&1; then
+    "$cmd" --uninstall-extension resiris.resiris-seti-file-icons >/dev/null 2>&1 || true
+  fi
 done
-
-if [[ -z "$CODE_CMD" ]]; then
-    echo "ERROR: VS Code CLI not found."
-    echo "Expected one of: code, code-insiders, codium"
-    exit 1
-fi
-
-echo "Using: $CODE_CMD"
-"$CODE_CMD" --uninstall-extension "$EXTENSION_ID" || true
-
-echo
-echo "Removed: Resiris File Icons"
+rm -f "$MIME/resy.xml" "$ICONS/application-x-resy.svg" "$APPS/resiris.desktop"
+command -v update-mime-database >/dev/null 2>&1 && update-mime-database "$HOME/.local/share/mime" >/dev/null 2>&1 || true
+command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$APPS" >/dev/null 2>&1 || true
+echo "Resiris Linux file integration and VS Code extension removed."
