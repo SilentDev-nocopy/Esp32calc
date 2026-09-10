@@ -1,11 +1,4 @@
-v value int = 10
+fn test(x):
+    return x
 
-if value > 20:
-    print_cmd("nagy")
-elif value == 10:
-    pass print_cmd("ezt kihagyja")
-    print_cmd("elif fut")
-else:
-    print_cmd("kicsi")
-
-print_cmd("utána")
+v result int = test(1, 2)
