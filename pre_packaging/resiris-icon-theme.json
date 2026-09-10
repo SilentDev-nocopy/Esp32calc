@@ -1,0 +1,10 @@
+{
+  "iconDefinitions": {
+    "resy": {
+      "iconPath": "./icons/resy.png"
+    }
+  },
+  "fileExtensions": {
+    "resy": "resy"
+  }
+}
