@@ -128,5 +128,3 @@ echo "Resiris installed."
 echo
 echo "Run:"
 echo "  resiris <file.resy>"
-echo
-echo ".resy files will open with VS Code."
