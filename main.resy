@@ -1,2 +1,4 @@
 fn asd():
 	print_cmd("asd")
+
+asd()

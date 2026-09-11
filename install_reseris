@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 BIN="$HOME/.local/bin"
 MIME="$HOME/.local/share/mime/packages"
 ICONS="$HOME/.local/share/icons/hicolor/scalable/mimetypes"
@@ -9,55 +10,123 @@ APPS="$HOME/.local/share/applications"
 
 mkdir -p "$BIN" "$MIME" "$ICONS" "$APPS"
 
-# Resiris terminal command
 ln -sfn "$ROOT/bin/resiris" "$BIN/resiris"
 
-# .resy Linux file-manager integration
 if [[ -f "$ROOT/pre_packaging/linux/mime/resy.xml" ]]; then
-  cp "$ROOT/pre_packaging/linux/mime/resy.xml" "$MIME/resy.xml"
-  cp "$ROOT/pre_packaging/linux/icons/application-x-resy.svg" "$ICONS/application-x-resy.svg"
-  cp "$ROOT/pre_packaging/linux/resiris.desktop" "$APPS/resiris.desktop"
+    cp \
+        "$ROOT/pre_packaging/linux/mime/resy.xml" \
+        "$MIME/resy.xml"
 
-  command -v update-mime-database >/dev/null 2>&1 && \
-    update-mime-database "$HOME/.local/share/mime" >/dev/null || true
-  command -v update-desktop-database >/dev/null 2>&1 && \
-    update-desktop-database "$APPS" >/dev/null 2>&1 || true
-# Open .resy files with VS Code
-if command -v xdg-mime >/dev/null 2>&1; then
-  if [[ -f "/usr/share/applications/code.desktop" ]]; then
-    xdg-mime default code.desktop application/x-resy || true
-  elif [[ -f "/usr/share/applications/visual-studio-code.desktop" ]]; then
-    xdg-mime default visual-studio-code.desktop application/x-resy || true
-  elif [[ -f "/usr/share/applications/codium.desktop" ]]; then
-    xdg-mime default codium.desktop application/x-resy || true
-  fi
+    if [[ -f "$ROOT/pre_packaging/linux/icons/application-x-resy.svg" ]]; then
+        cp \
+            "$ROOT/pre_packaging/linux/icons/application-x-resy.svg" \
+            "$ICONS/application-x-resy.svg"
+    fi
+
+    # Install the desktop entry only for metadata/icon integration.
+    # It is not registered as the default application for .resy files.
+    if [[ -f "$ROOT/pre_packaging/linux/resiris.desktop" ]]; then
+        cp \
+            "$ROOT/pre_packaging/linux/resiris.desktop" \
+            "$APPS/resiris.desktop"
+    fi
+
+    # Update MIME database
+    if command -v update-mime-database >/dev/null 2>&1; then
+        update-mime-database \
+            "$HOME/.local/share/mime" \
+            >/dev/null 2>&1 || true
+    fi
+
+    # Update desktop database
+    if command -v update-desktop-database >/dev/null 2>&1; then
+        update-desktop-database \
+            "$APPS" \
+            >/dev/null 2>&1 || true
+    fi
 fi
 
-# VS Code Seti-based .resy icon integration
 CODE_CMD=""
+
 for cmd in code code-insiders codium; do
-  if command -v "$cmd" >/dev/null 2>&1; then
-    CODE_CMD="$cmd"
-    break
-  fi
+    if command -v "$cmd" >/dev/null 2>&1; then
+        CODE_CMD="$cmd"
+        break
+    fi
 done
 
-VSIX="$ROOT/pre_packaging/vscode/build/resiris-seti-file-icons-0.1.0.vsix"
-if [[ -n "$CODE_CMD" ]]; then
-  if [[ ! -f "$VSIX" && -f "$ROOT/pre_packaging/vscode/build_vsix.py" ]]; then
-    if ! python3 "$ROOT/pre_packaging/vscode/build_vsix.py" >/dev/null 2>&1; then
-      echo "WARNING: Could not build the VS Code extension; .resy Linux integration was still installed."
-    fi
-  fi
+CODE_DESKTOP=""
 
-  if [[ -f "$VSIX" ]]; then
-    "$CODE_CMD" --install-extension "$VSIX" --force
-  else
-    echo "WARNING: VS Code extension package is not available; .resy Linux integration was still installed."
-  fi
-else
-  echo "WARNING: VS Code CLI not found; .resy Linux integration was still installed."
+for desktop in \
+    code.desktop \
+    visual-studio-code.desktop \
+    code-insiders.desktop \
+    codium.desktop
+do
+    if [[ -f "$HOME/.local/share/applications/$desktop" ]]; then
+        CODE_DESKTOP="$desktop"
+        break
+    fi
+
+    if [[ -f "/usr/share/applications/$desktop" ]]; then
+        CODE_DESKTOP="$desktop"
+        break
+    fi
+done
+
+if command -v xdg-mime >/dev/null 2>&1; then
+    if [[ -n "$CODE_DESKTOP" ]]; then
+        xdg-mime default \
+            "$CODE_DESKTOP" \
+            application/x-resy \
+            || true
+
+    else
+        echo "WARNING: VS Code desktop entry not found."
+        echo "         .resy files were not assigned a default editor."
+    fi
 fi
 
+VSIX="$ROOT/pre_packaging/vscode/build/resiris-seti-file-icons-0.1.0.vsix"
+
+if [[ -n "$CODE_CMD" ]]; then
+    # Build the extension package if it does not exist
+    if [[ ! -f "$VSIX" && \
+          -f "$ROOT/pre_packaging/vscode/build_vsix.py" ]]; then
+
+        if ! python3 \
+            "$ROOT/pre_packaging/vscode/build_vsix.py" \
+            >/dev/null 2>&1
+        then
+            echo
+            echo "WARNING: Could not build the VS Code extension."
+            echo "         .resy Linux integration was still installed."
+            echo
+        fi
+    fi
+
+    # Install the extension
+    if [[ -f "$VSIX" ]]; then
+        "$CODE_CMD" \
+            --install-extension "$VSIX" \
+            --force
+    else
+        echo
+        echo "WARNING: VS Code extension package is not available."
+        echo "         .resy Linux integration was still installed."
+        echo
+    fi
+else
+    echo
+    echo "WARNING: VS Code CLI was not found."
+    echo "         .resy Linux integration was still installed."
+    echo
+fi
+
+echo
 echo "Resiris installed."
-echo "Run: resiris <file.resy>"
+echo
+echo "Run:"
+echo "  resiris <file.resy>"
+echo
+echo ".resy files will open with VS Code."
