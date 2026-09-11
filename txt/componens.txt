@@ -1,6 +1,6 @@
 cpu, alaplap: https://www.amazon.com/HiLetgo-ESP-WROOM-32-Development-Microcontroller-Integrated/dp/B0718T232Z/ref=sxin_15_pa_sp_search_thematic-asin_sspa?cv_ct_cx=esp32&s=electronics&sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D&sr=1-1-925d4041-2745-4edd-b995-62e9e595df4e-spons&aref=F2aiKD08T2&sp_csd=d2lkZ2V0TmFtZT1zcF9zZWFyY2hfdGhlbWF0aWM
-billentyüzet: https://www.amazon.com/Hilitchi-250-Pcs-Tactile-Momentary-Assortment/dp/B0722LBKV7/ref=sr_1_4?sr=8-4
-kijelzö: https://openelab.io/products/openelab-2-42-inch-oled?variant=45588795654342&country=DE&currency=EUR
+keyboard: https://www.amazon.com/Hilitchi-250-Pcs-Tactile-Momentary-Assortment/dp/B0722LBKV7/ref=sr_1_4?sr=8-4
+display: https://openelab.io/products/openelab-2-42-inch-oled?variant=45588795654342&country=DE&currency=EUR
 
 Custom Calculator – Components
 

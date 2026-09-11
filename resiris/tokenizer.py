@@ -171,7 +171,7 @@ class Tokenizer:
         for line_no, raw_line in enumerate(lines, start=1):
             if "\t" in raw_line[: len(raw_line) - len(raw_line.lstrip(" \t"))]:
                 raise ResirisSyntaxError(
-                    f"{line_no}: tabulátor nem használható indentációra"
+                    f"{line_no}: tabs cannot be used for indentation"
                 )
 
             stripped = raw_line.lstrip(" ")
@@ -190,7 +190,7 @@ class Tokenizer:
                     tokens.append(Token(TokenType.DEDENT, indent, line_no, 1))
                 if indent != indent_stack[-1]:
                     raise ResirisSyntaxError(
-                        f"{line_no}: hibás indentáció"
+                        f"{line_no}: invalid indentation"
                     )
 
             i = indent
@@ -230,7 +230,7 @@ class Tokenizer:
                         if raw_line[i] == "\\":
                             if i + 1 >= n:
                                 raise ResirisSyntaxError(
-                                    f"{line_no}:{i+1}: lezáratlan string"
+                                    f"{line_no}:{i+1}: unterminated string"
                                 )
                             escaped = raw_line[i + 1]
                             escapes = {
@@ -252,7 +252,7 @@ class Tokenizer:
                         i += 1
                     else:
                         raise ResirisSyntaxError(
-                            f"{line_no}:{start+1}: lezáratlan string"
+                            f"{line_no}:{start+1}: unterminated string"
                         )
 
                     tokens.append(
@@ -277,7 +277,7 @@ class Tokenizer:
                             value = float(raw_line[start:i])
                         else:
                             raise ResirisSyntaxError(
-                                f"{line_no}:{i+1}: a tizedespont után számjegy kell"
+                                f"{line_no}:{i+1}: a digit is required after the decimal point"
                             )
 
                     tokens.append(Token(token_type, value, line_no, start + 1))
@@ -295,7 +295,7 @@ class Tokenizer:
                     continue
 
                 raise ResirisSyntaxError(
-                    f"{line_no}:{column}: ismeretlen karakter: {ch!r}"
+                    f"{line_no}:{column}: unknown character: {ch!r}"
                 )
 
             tokens.append(Token(TokenType.NEWLINE, "\\n", line_no, n + 1))

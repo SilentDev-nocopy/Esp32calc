@@ -124,15 +124,15 @@ class Parser:
         if token.type is TokenType.MAT:
             self.error(
                 token,
-                "a `mat` tokenizálva van, de a case/ág szintaxisa jelenleg nincs "
-                "egyértelműen definiálva a specifikációban"
+                "`mat` is tokenized, but its case/branch syntax is not currently "
+                "clearly defined in the specification"
             )
         if token.type is TokenType.RETURN:
             return self.parse_return()
         if token.type is TokenType.PASS:
-            # `pass` a sor elején az egész aktuális sort kihagyja.
-            # A tokenizer már minden sor végét NEWLINE tokennel jelöli,
-            # ezért a parser a `pass` után érkező teljes sort elfogyasztja.
+            # `pass` at the start of a line skips the entire current line.
+            # The tokenizer marks every line ending with a NEWLINE token,
+            # so the parser consumes the complete line after `pass`.
             self.advance()
             while not self.at(TokenType.NEWLINE) and not self.at(TokenType.EOF):
                 self.advance()
@@ -141,7 +141,7 @@ class Parser:
         if token.type is TokenType.AWAIT:
             self.advance()
             expression = self.parse_expression()
-            self.expect(TokenType.NEWLINE, "az `await` után sorvége kell")
+            self.expect(TokenType.NEWLINE, "a line ending is required after `await`")
             return AwaitStmt(expression)
 
         if token.type is TokenType.PRINT_CMD:
@@ -153,9 +153,9 @@ class Parser:
         self.advance()
         module = self.expect(
             TokenType.IDENTIFIER,
-            "az `include` után modulnév kell"
+            "a module name is required after `include`"
         )
-        self.expect(TokenType.NEWLINE, "az `include` után sorvége kell")
+        self.expect(TokenType.NEWLINE, "a line ending is required after `include`")
         return Include(module.value)
 
     def parse_declaration(self) -> Declaration:
@@ -165,14 +165,14 @@ class Parser:
     def parse_declaration_after_kind(self, kind: str) -> Declaration:
         name = self.expect(
             TokenType.IDENTIFIER,
-            "a deklarációban az első névnek azonosítónak kell lennie"
+            "the first name in a declaration must be an identifier"
         )
 
         type_token = self.current()
         if type_token.type not in self.TYPE_TOKENS:
             self.error(
                 type_token,
-                "a deklarációban típusnév kell"
+                "a type name is required in a declaration"
             )
         type_name = self.TYPE_TOKENS[self.advance().type]
 
@@ -184,60 +184,60 @@ class Parser:
                 value = self.parse_expression()
 
         if not (type_name == "FunctionalObject" and isinstance(value, FunctionalObjectDef)):
-            self.expect(TokenType.NEWLINE, "a deklaráció végén sorvége kell")
+            self.expect(TokenType.NEWLINE, "a line ending is required at the end of a declaration")
         return Declaration(kind, name.value, type_name, value)
 
     def parse_functional_object(self) -> FunctionalObjectDef:
         name = self.current()
         if name.type is not TokenType.TYPE_FUNCTIONAL_OBJECT:
-            self.error(name, "a FunctionalObject értékadásának `FunctionalObject.new(...)` kell lennie")
+            self.error(name, "a FunctionalObject assignment must use `FunctionalObject.new(...)`")
         self.advance()
-        self.expect(TokenType.DOT, "a `FunctionalObject` után `.` kell")
-        new_token = self.expect(TokenType.IDENTIFIER, "a `FunctionalObject.` után `new` kell")
+        self.expect(TokenType.DOT, "a dot is required after `FunctionalObject`")
+        new_token = self.expect(TokenType.IDENTIFIER, "`new` is required after `FunctionalObject.`")
         if new_token.value != "new":
-            self.error(new_token, "a FunctionalObject gyártó neve `new` kell legyen")
+            self.error(new_token, "the FunctionalObject constructor must be named `new`")
         parameters = self.parse_parameter_list()
-        self.expect(TokenType.COLON, "a FunctionalObject fejlécének végén `:` kell")
-        self.expect(TokenType.NEWLINE, "a `:` után sorvége kell")
+        self.expect(TokenType.COLON, "the FunctionalObject header must end with `:`")
+        self.expect(TokenType.NEWLINE, "a line ending is required after `:`")
         body = self.parse_block()
         return FunctionalObjectDef(parameters, body)
 
     def parse_function(self) -> FunctionDef:
         self.advance()  # fn
-        name = self.expect(TokenType.IDENTIFIER, "az `fn` után függvénynév kell")
+        name = self.expect(TokenType.IDENTIFIER, "a function name is required after `fn`")
         parameters = self.parse_parameter_list()
-        self.expect(TokenType.COLON, "a függvény fejlécének végén `:` kell")
-        self.expect(TokenType.NEWLINE, "a `:` után sorvége kell")
+        self.expect(TokenType.COLON, "the function header must end with `:`")
+        self.expect(TokenType.NEWLINE, "a line ending is required after `:`")
         body = self.parse_block()
         return FunctionDef(name.value, parameters, body)
 
     def parse_named_function(self) -> FunctionDef:
         name_token = self.advance()
         parameters = self.parse_parameter_list()
-        self.expect(TokenType.COLON, "a függvény fejlécének végén `:` kell")
-        self.expect(TokenType.NEWLINE, "a `:` után sorvége kell")
+        self.expect(TokenType.COLON, "the function header must end with `:`")
+        self.expect(TokenType.NEWLINE, "a line ending is required after `:`")
         body = self.parse_block()
         return FunctionDef(name_token.value, parameters, body)
 
     def parse_parameter_list(self) -> list[str]:
-        self.expect(TokenType.LPAREN, "a függvény neve után `(` kell")
+        self.expect(TokenType.LPAREN, "`(` is required after the function name")
         parameters: list[str] = []
 
         if not self.at(TokenType.RPAREN):
             while True:
                 param = self.expect(
                     TokenType.IDENTIFIER,
-                    "a függvény paraméterének azonosítónak kell lennie"
+                    "a function parameter must be an identifier"
                 )
                 parameters.append(param.value)
                 if not self.match(TokenType.COMMA):
                     break
 
-        self.expect(TokenType.RPAREN, "hiányzó `)` a paraméterlistában")
+        self.expect(TokenType.RPAREN, "missing `)` in the parameter list")
         return parameters
 
     def parse_block(self) -> list[object]:
-        self.expect(TokenType.INDENT, "a blokkhoz behúzott sor kell")
+        self.expect(TokenType.INDENT, "an indented line is required for the block")
         self.skip_newlines()
 
         statements = []
@@ -245,28 +245,28 @@ class Parser:
             statements.append(self.parse_statement())
             self.skip_newlines()
 
-        self.expect(TokenType.DEDENT, "hiányzó blokkzárás")
+        self.expect(TokenType.DEDENT, "missing block terminator")
         return statements
 
     def parse_if(self) -> IfStmt:
         self.advance()  # if
         condition = self.parse_expression()
-        self.expect(TokenType.COLON, "az `if` végén `:` kell")
-        self.expect(TokenType.NEWLINE, "az `if` után sorvége kell")
+        self.expect(TokenType.COLON, "`if` must end with `:`")
+        self.expect(TokenType.NEWLINE, "a line ending is required after `if`")
         body = self.parse_block()
 
         elif_blocks = []
         while self.match(TokenType.ELIF):
             elif_condition = self.parse_expression()
-            self.expect(TokenType.COLON, "az `elif` végén `:` kell")
-            self.expect(TokenType.NEWLINE, "az `elif` után sorvége kell")
+            self.expect(TokenType.COLON, "`elif` must end with `:`")
+            self.expect(TokenType.NEWLINE, "a line ending is required after `elif`")
             elif_body = self.parse_block()
             elif_blocks.append((elif_condition, elif_body))
 
         else_body = None
         if self.match(TokenType.ELSE):
-            self.expect(TokenType.COLON, "az `else` végén `:` kell")
-            self.expect(TokenType.NEWLINE, "az `else` után sorvége kell")
+            self.expect(TokenType.COLON, "`else` must end with `:`")
+            self.expect(TokenType.NEWLINE, "a line ending is required after `else`")
             else_body = self.parse_block()
 
         return IfStmt(condition, body, elif_blocks, else_body)
@@ -275,16 +275,16 @@ class Parser:
         self.advance()  # print_cmd
         self.expect(
             TokenType.LPAREN,
-            "a `print_cmd` után `(` kell"
+            "`(` is required after `print_cmd`"
         )
         expression = self.parse_expression()
         self.expect(
             TokenType.RPAREN,
-            "hiányzó `)` a `print_cmd` hívásában"
+            "missing `)` in the `print_cmd` call"
         )
         self.expect(
             TokenType.NEWLINE,
-            "a `print_cmd` végén sorvége kell"
+            "a line ending is required after `print_cmd`"
         )
         return PrintCmdStmt(expression)
 
@@ -296,7 +296,7 @@ class Parser:
             return ReturnStmt(None)
 
         value = self.parse_expression()
-        self.expect(TokenType.NEWLINE, "a `return` végén sorvége kell")
+        self.expect(TokenType.NEWLINE, "a line ending is required after `return`")
         return ReturnStmt(value)
 
     def parse_assignment_or_expression(self):
@@ -305,10 +305,10 @@ class Parser:
         if isinstance(expression, Name) and self.current().type in self.ASSIGNMENT_TOKENS:
             operator = self.ASSIGNMENT_TOKENS[self.advance().type]
             value = self.parse_expression()
-            self.expect(TokenType.NEWLINE, "az értékadás végén sorvége kell")
+            self.expect(TokenType.NEWLINE, "a line ending is required after the assignment")
             return Assignment(expression.name, operator, value)
 
-        self.expect(TokenType.NEWLINE, "a kifejezés végén sorvége kell")
+        self.expect(TokenType.NEWLINE, "a line ending is required after the expression")
         return ExpressionStmt(expression)
 
     # Expression precedence:
@@ -373,7 +373,7 @@ class Parser:
                     arguments.append(self.parse_expression())
                     if not self.match(TokenType.COMMA):
                         break
-            self.expect(TokenType.RPAREN, "hiányzó `)` a hívásban")
+            self.expect(TokenType.RPAREN, "missing `)` in the call")
             expr = CallExpr(expr, arguments)
 
         return expr
@@ -384,7 +384,7 @@ class Parser:
         if token.type is TokenType.LPAREN:
             self.advance()
             expression = self.parse_expression()
-            self.expect(TokenType.RPAREN, "hiányzó `)` a zárójeles kifejezésben")
+            self.expect(TokenType.RPAREN, "missing `)` in the parenthesized expression")
             return expression
 
         if token.type is TokenType.INTEGER:
@@ -422,15 +422,15 @@ class Parser:
         if token.type in self.TYPE_TOKENS:
             self.error(
                 token,
-                "a típusnév itt nem kifejezés"
+                "a type name is not an expression here"
             )
 
-        self.error(token, "érvényes kifejezés várt")
+        self.error(token, "a valid expression was expected")
         raise AssertionError("unreachable")
 
 
 def ast_to_dict(node):
-    """Kis debug helper: az AST könnyen kiírható JSON-szerű dictként."""
+    """Small debug helper: convert the AST into an easily printable JSON-like dict."""
     if is_dataclass(node):
         result = {}
         for key, value in asdict(node).items():

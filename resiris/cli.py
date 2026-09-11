@@ -10,11 +10,11 @@ from .tokenizer import ResirisSyntaxError, Tokenizer
 
 def run_file(source_path: Path) -> int:
     if source_path.suffix.lower() != ".resy":
-        print("ResirisError: a Resiris fájlok kiterjesztése .resy kell legyen.")
+        print("ResirisError: Resiris files must have the .resy extension.")
         return 1
 
     if not source_path.is_file():
-        print(f"ResirisError: a fájl nem található: {source_path}")
+        print(f"ResirisError: file not found: {source_path}")
         return 1
 
     try:
@@ -26,10 +26,10 @@ def run_file(source_path: Path) -> int:
         print(f"{type(error).__name__}: {error}")
         return 1
     except UnicodeDecodeError:
-        print(f"ResirisError: a fájl nem UTF-8 kódolású: {source_path}")
+        print(f"ResirisError: file is not UTF-8 encoded: {source_path}")
         return 1
     except OSError as error:
-        print(f"ResirisError: a fájl nem olvasható: {error}")
+        print(f"ResirisError: file cannot be read: {error}")
         return 1
 
     return 0
@@ -38,23 +38,23 @@ def run_file(source_path: Path) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(
         prog="resiris",
-        description="Resiris fejlesztői parancssor",
+        description="Resiris developer CLI",
     )
     parser.add_argument(
         "file",
         nargs="?",
-        help="futtatandó .resy fájl",
+        help=".resy file to run",
     )
     args = parser.parse_args()
 
     if args.file is None:
         print("Resiris v0.1")
-        print("Resiris fejlesztői parancssor")
+        print("Resiris developer CLI")
         print()
-        print("Használat:")
-        print("  resiris <fájl.resy>")
+        print("Usage:")
+        print("  resiris <file.resy>")
         print()
-        print("Példa:")
+        print("Example:")
         print("  resiris main.resy")
         return 0
 

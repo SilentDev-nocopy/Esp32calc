@@ -3,7 +3,7 @@ from resiris.parser import Parser, ast_to_dict
 
 
 SOURCE = """\
-## Minimális Resiris teszt
+## Minimal Resiris test
 
 v number int = 10
 v other int = 5

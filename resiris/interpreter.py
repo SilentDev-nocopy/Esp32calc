@@ -23,7 +23,7 @@ from .tokenizer import ResirisSyntaxError
 
 
 class RuntimeErrorResiris(Exception):
-    """Resiris futási idejű hiba."""
+    """Resiris runtime error."""
 
 
 class UnknownVariableError(RuntimeErrorResiris):
@@ -47,7 +47,7 @@ class FunctionError(RuntimeErrorResiris):
 
 
 class ReturnSignal(Exception):
-    """Belső jelzés a return végrehajtásához."""
+    """Internal signal used to execute return."""
 
     def __init__(self, value):
         super().__init__()
@@ -69,33 +69,33 @@ class Variable:
 
 class Interpreter:
     """
-    Resiris PC-s Interpreter prototípus.
+    Resiris PC-side interpreter prototype.
 
     Jelenleg:
-      - v / c deklaráció
+    - v / c declarations
       - int / float / string / bool
       - UnknownObject
       - =, +=, -=, *=, /=
       - +, -, *, /, %
       - ==, !=, >, <, >=, <=
-      - változónevek
-      - literálok
+    - variable names
+    - literals
       - if / elif / else
       - fn
       - return
-      - függvényhívás
+    - function calls
       - print_cmd()
 
-    Még NEM futtat:
+    Does NOT execute yet:
       - mat
       - await
       - include
       - modulokat
 
     Scope:
-      - a függvény paraméterei és a benne létrehozott v-k lokálisak
-      - a globális v-k olvashatók a függvényből
-      - ez a scope-szabály jelenleg PROTOTÍPUS, nem végleges Resiris-specifikáció
+    - function parameters and v variables created inside functions are local
+    - global v variables can be read from functions
+    - this scope rule is currently a PROTOTYPE, not the final Resiris specification
     """
 
     def __init__(self):
@@ -104,8 +104,8 @@ class Interpreter:
         self.scope_stack: list[dict[str, Variable]] = []
 
     def run(self, program: Program) -> dict[str, Variable]:
-        # A top-level függvénydefiníciókat előbb regisztráljuk,
-        # így egy függvény a programban való későbbi helyéről is hívható.
+        # Register top-level function definitions first,
+        # so a function can be called even when defined later in the program.
         for statement in program.statements:
             if isinstance(statement, FunctionDef):
                 self.register_function(statement)
@@ -121,12 +121,12 @@ class Interpreter:
     def register_function(self, statement: FunctionDef):
         if statement.name in self.functions:
             raise FunctionError(
-                f"{statement.name}: a függvény már létezik"
+                f"{statement.name}: the function already exists"
             )
 
         if statement.name in self.variables:
             raise FunctionError(
-                f"{statement.name}: a név már változóként használatban van"
+                f"{statement.name}: the name is already used as a variable"
             )
 
         self.functions[statement.name] = statement
@@ -164,7 +164,7 @@ class Interpreter:
                 return
 
             raise RuntimeErrorResiris(
-                f"Az Interpreter jelenlegi verziója nem támogatja: "
+                f"The current interpreter version does not support: "
                 f"{type(statement).__name__}"
             )
         except RuntimeErrorResiris as error:
@@ -182,23 +182,23 @@ class Interpreter:
 
         if statement.name in current_scope:
             raise RuntimeErrorResiris(
-                f"{statement.name}: a név már használatban van"
+                f"{statement.name}: the name is already in use"
             )
 
         if statement.value is None:
             if statement.type_name == "UnknownObject":
                 raise MissingValueError(
-                    f"{statement.name}: UnknownObject első értékadása szükséges"
+                    f"{statement.name}: the first assignment of UnknownObject is required"
                 )
 
             raise MissingValueError(
-                f"{statement.name}: a deklarációhoz jelenleg érték kell"
+                f"{statement.name}: a value is currently required for the declaration"
             )
 
         if statement.type_name == "FunctionalObject":
             if not isinstance(statement.value, FunctionalObjectDef):
                 raise TypeErrorResiris(
-                    f"{statement.name}: FunctionalObject.new(...) szükséges"
+                    f"{statement.name}: FunctionalObject.new(...) is required"
                 )
             value = FunctionalObject(statement.value.parameters, statement.value.body)
         else:
@@ -226,12 +226,12 @@ class Interpreter:
 
         if variable is None:
             raise UnknownVariableError(
-                f"{statement.target}: ismeretlen név"
+                f"{statement.target}: unknown name"
             )
 
         if variable.is_constant:
             raise ConstantAssignmentError(
-                f"{statement.target}: konstans nem módosítható"
+                f"{statement.target}: a constant cannot be modified"
             )
 
         right = self.evaluate(statement.value)
@@ -261,7 +261,7 @@ class Interpreter:
 
         else:
             raise RuntimeErrorResiris(
-                f"Ismeretlen értékadási operátor: {statement.operator}"
+                f"Unknown assignment operator: {statement.operator}"
             )
 
         variable.value = self.validate_and_coerce(
@@ -275,7 +275,7 @@ class Interpreter:
 
         if not isinstance(condition, bool):
             raise TypeErrorResiris(
-                "az if feltételének bool értéket kell adnia"
+                "the if condition must produce a bool value"
             )
 
         if condition:
@@ -287,7 +287,7 @@ class Interpreter:
 
             if not isinstance(condition, bool):
                 raise TypeErrorResiris(
-                    "az elif feltételének bool értéket kell adnia"
+                    "the elif condition must produce a bool value"
                 )
 
             if condition:
@@ -304,7 +304,7 @@ class Interpreter:
     def execute_return(self, statement: ReturnStmt):
         if not self.scope_stack:
             raise FunctionError(
-                "`return` csak függvényen belül használható"
+                "`return` can only be used inside a function"
             )
 
         value = None
@@ -322,13 +322,13 @@ class Interpreter:
 
         if function is None:
             raise FunctionError(
-                f"{function_name}: ismeretlen függvény"
+                f"{function_name}: unknown function"
             )
 
         if len(arguments) != len(function.parameters):
             raise FunctionError(
-                f"{function_name}: {len(function.parameters)} paraméter szükséges, "
-                f"de {len(arguments)} argumentum érkezett"
+                f"{function_name}: {len(function.parameters)} parameters required, "
+                f"but {len(arguments)} arguments received"
             )
 
         local_scope: dict[str, Variable] = {}
@@ -339,7 +339,7 @@ class Interpreter:
         ):
             if parameter_name in local_scope:
                 raise FunctionError(
-                    f"{function_name}: duplikált paraméternév: {parameter_name}"
+                    f"{function_name}: duplicate parameter name: {parameter_name}"
                 )
 
             local_scope[parameter_name] = Variable(
@@ -356,8 +356,7 @@ class Interpreter:
             except ReturnSignal as signal:
                 return signal.value
 
-            # A return nélküli függvény jelenlegi prototípusos eredménye:
-            # None.
+            # The current prototype result of a function without return is None.
             return None
 
         finally:
@@ -387,7 +386,7 @@ class Interpreter:
 
             if variable is None:
                 raise UnknownVariableError(
-                    f"{expression.name}: ismeretlen név"
+                    f"{expression.name}: unknown name"
                 )
 
             return variable.value
@@ -398,7 +397,7 @@ class Interpreter:
             if expression.operator == "+":
                 if not isinstance(value, (int, float)) or isinstance(value, bool):
                     raise TypeErrorResiris(
-                        f"unáris + csak számra használható: {value!r}"
+                        f"unary + can only be used with numbers: {value!r}"
                     )
 
                 return +value
@@ -406,13 +405,13 @@ class Interpreter:
             if expression.operator == "-":
                 if not isinstance(value, (int, float)) or isinstance(value, bool):
                     raise TypeErrorResiris(
-                        f"unáris - csak számra használható: {value!r}"
+                        f"unary - can only be used with numbers: {value!r}"
                     )
 
                 return -value
 
             raise RuntimeErrorResiris(
-                f"Ismeretlen unáris operátor: {expression.operator}"
+                f"Unknown unary operator: {expression.operator}"
             )
 
         if isinstance(expression, BinaryExpr):
@@ -440,11 +439,11 @@ class Interpreter:
                 return self.call_function(expression.function.name, arguments)
 
             raise FunctionError(
-                "A függvényhívás célja jelenleg név vagy FunctionalObject kell legyen"
+                "the function call target must currently be a name or FunctionalObject"
             )
 
         raise RuntimeErrorResiris(
-            f"Az Interpreter jelenlegi verziója nem ismeri ezt a kifejezést: "
+            f"The current interpreter version does not recognize this expression: "
             f"{type(expression).__name__}"
         )
 
@@ -452,15 +451,15 @@ class Interpreter:
     def call_function_object(self, function: FunctionalObject, arguments: list[object]):
         if len(arguments) != len(function.parameters):
             raise FunctionError(
-                f"FunctionalObject: {len(function.parameters)} paraméter szükséges, "
-                f"de {len(arguments)} argumentum érkezett"
+                    f"FunctionalObject: {len(function.parameters)} parameters required, "
+                    f"but {len(arguments)} arguments received"
             )
 
         local_scope: dict[str, Variable] = {}
         for parameter_name, argument_value in zip(function.parameters, arguments):
             if parameter_name in local_scope:
                 raise FunctionError(
-                    f"FunctionalObject: duplikált paraméternév: {parameter_name}"
+                    f"FunctionalObject: duplicate parameter name: {parameter_name}"
                 )
             local_scope[parameter_name] = Variable(
                 value=argument_value,
@@ -495,8 +494,8 @@ class Interpreter:
 
             if not (left_is_number and right_is_number):
                 raise TypeErrorResiris(
-                    f"+: azonos típusú stringek vagy numerikus operandusok szükségesek; "
-                    f"kapott: {type(left).__name__}, {type(right).__name__}"
+                    f"+: strings of the same type or numeric operands are required; "
+                    f"received: {type(left).__name__}, {type(right).__name__}"
                 )
 
             return left + right
@@ -504,8 +503,8 @@ class Interpreter:
         if operator in {"-", "*", "/", "%"}:
             if not (left_is_number and right_is_number):
                 raise TypeErrorResiris(
-                    f"{operator}: numerikus operandusok szükségesek; "
-                    f"kapott: {type(left).__name__}, "
+                    f"{operator}: numeric operands are required; "
+                    f"received: {type(left).__name__}, "
                     f"{type(right).__name__}"
                 )
 
@@ -517,13 +516,13 @@ class Interpreter:
 
             if operator == "/":
                 if right == 0:
-                    raise RuntimeErrorResiris("nullával való osztás")
+                    raise RuntimeErrorResiris("division by zero")
 
                 return left / right
 
             if operator == "%":
                 if right == 0:
-                    raise RuntimeErrorResiris("nullával való modulo")
+                    raise RuntimeErrorResiris("modulo by zero")
 
                 return left % right
 
@@ -547,7 +546,7 @@ class Interpreter:
                 return left <= right
 
         raise RuntimeErrorResiris(
-            f"Ismeretlen bináris operátor: {operator}"
+            f"Unknown binary operator: {operator}"
         )
 
     def infer_type_name(self, value):
@@ -564,7 +563,7 @@ class Interpreter:
             return "string"
 
         raise TypeErrorResiris(
-            f"UnknownObject: nem meghatározható típus: "
+            f"UnknownObject: type cannot be determined: "
             f"{type(value).__name__}"
         )
 
@@ -575,8 +574,8 @@ class Interpreter:
         if type_name == "int":
             if isinstance(value, bool) or not isinstance(value, int):
                 raise TypeErrorResiris(
-                    f"{name}: int érték szükséges, "
-                    f"kapott: {type(value).__name__}"
+                    f"{name}: an int value is required, "
+                    f"received: {type(value).__name__}"
                 )
 
             return value
@@ -584,8 +583,8 @@ class Interpreter:
         if type_name == "float":
             if isinstance(value, bool) or not isinstance(value, (int, float)):
                 raise TypeErrorResiris(
-                    f"{name}: float érték szükséges, "
-                    f"kapott: {type(value).__name__}"
+                    f"{name}: a float value is required, "
+                    f"received: {type(value).__name__}"
                 )
 
             return float(value)
@@ -593,8 +592,8 @@ class Interpreter:
         if type_name == "string":
             if not isinstance(value, str):
                 raise TypeErrorResiris(
-                    f"{name}: string érték szükséges, "
-                    f"kapott: {type(value).__name__}"
+                    f"{name}: a string value is required, "
+                    f"received: {type(value).__name__}"
                 )
 
             return value
@@ -602,8 +601,8 @@ class Interpreter:
         if type_name == "bool":
             if not isinstance(value, bool):
                 raise TypeErrorResiris(
-                    f"{name}: bool érték szükséges, "
-                    f"kapott: {type(value).__name__}"
+                    f"{name}: a bool value is required, "
+                    f"received: {type(value).__name__}"
                 )
 
             return value
@@ -611,15 +610,15 @@ class Interpreter:
         if type_name == "FunctionalObject":
             if not isinstance(value, FunctionalObject):
                 raise TypeErrorResiris(
-                    f"{name}: FunctionalObject érték szükséges, kapott: {type(value).__name__}"
+                    f"{name}: a FunctionalObject value is required, received: {type(value).__name__}"
                 )
             return value
 
         if type_name == "ResirisModuleObject":
             raise TypeErrorResiris(
-                f"{name}: ResirisModuleObject kezelése még nincs implementálva"
+                f"{name}: ResirisModuleObject handling has not been implemented yet"
             )
 
         raise RuntimeErrorResiris(
-            f"{name}: ismeretlen típus: {type_name}"
+            f"{name}: unknown type: {type_name}"
         )

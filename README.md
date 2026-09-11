@@ -76,7 +76,7 @@ When a Resiris source file contains a normal tokenizer, parser or runtime error,
 For example:
 
 ```text
-UnknownVariableError: sor 1, oszlop 1: x: ismeretlen név
+UnknownVariableError: line 1, column 1: x: unknown name
 ```
 
 The internal Python call stack is kept out of normal Resiris error output.
