@@ -171,9 +171,9 @@ class Interpreter:
             line = getattr(statement, "source_line", None)
             column = getattr(statement, "source_column", None)
             if line is not None and not str(error).startswith("sor "):
-                location = f"sor {line}"
+                location = f"line {line}"
                 if column is not None:
-                    location += f", oszlop {column}"
+                    location += f", column {column}"
                 raise type(error)(f"{location}: {error}") from error
             raise
 
