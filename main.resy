@@ -1,4 +1,2 @@
-fn test(x):
-    return x
-
-v result int = test(1, 2)
+fn asd():
+	print_cmd("asd")
