@@ -39,6 +39,29 @@ def print_banner() -> None:
 FRONTEND_CONFIG_DIR = Path.home() / ".config" / "resiris"
 FRONTEND_CONFIG_FILE = FRONTEND_CONFIG_DIR / "frontend_visibility"
 
+
+class ResirisArgumentParser(argparse.ArgumentParser):
+    """Argument parser that keeps command-line errors compact."""
+
+    def error(self, message: str) -> None:
+        self.exit(2, f"{RED}Resiris CLI error:{RESET} {message}\n")
+
+
+def frontend_visibility_enabled() -> bool:
+    return FRONTEND_CONFIG_FILE.is_file()
+
+
+def set_frontend_visibility(enabled: bool) -> None:
+    if enabled:
+        FRONTEND_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        FRONTEND_CONFIG_FILE.write_text("enabled\n", encoding="utf-8")
+    else:
+        try:
+            FRONTEND_CONFIG_FILE.unlink()
+        except FileNotFoundError:
+            pass
+
+
 def run_file(source_path: Path, show_frontend: bool = False) -> int:
     if source_path.suffix.lower() != ".resy":
         print(
@@ -95,30 +118,6 @@ def run_file(source_path: Path, show_frontend: bool = False) -> int:
     return 0
 
 
-# CLI
-
-class ResirisArgumentParser(argparse.ArgumentParser):
-    """Argument parser that keeps command-line errors compact."""
-
-    def error(self, message: str) -> None:
-        self.exit(2, f"{RED}Resiris CLI error:{RESET} {message}\n")
-
-
-def frontend_visibility_enabled() -> bool:
-    return FRONTEND_CONFIG_FILE.is_file()
-
-
-def set_frontend_visibility(enabled: bool) -> None:
-    if enabled:
-        FRONTEND_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-        FRONTEND_CONFIG_FILE.write_text("enabled\n", encoding="utf-8")
-    else:
-        try:
-            FRONTEND_CONFIG_FILE.unlink()
-        except FileNotFoundError:
-            pass
-
-
 def main() -> int:
     parser = ResirisArgumentParser(
         prog="resiris",
@@ -130,13 +129,13 @@ def main() -> int:
     frontend_group.add_argument(
         "--enable-frontend-visibility",
         action="store_true",
-        help="Show tokenizer and parser output after running the .resy file",
+        help="Enable frontend output for all subsequently run .resy files",
     )
 
     frontend_group.add_argument(
         "--disable-frontend-visibility",
         action="store_true",
-        help="Disable tokenizer and parser output after running the .resy file",
+        help="Disable frontend output for subsequently run .resy files",
     )
 
     parser.add_argument(

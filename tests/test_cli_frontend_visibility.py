@@ -5,8 +5,6 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MAIN = ROOT / "main.resy"
-
 
 def run(*args, home):
     env = os.environ.copy()
@@ -30,7 +28,7 @@ def main():
     if "Frontend visibility enabled." not in enabled.stdout:
         raise SystemExit("Frontend visibility was not enabled")
 
-    enabled_run = run("main.resy", home=home)
+    enabled_run = run("tests/test_resy_for_cli.resy", home=home)
     if enabled_run.returncode != 0:
         raise SystemExit(enabled_run.stderr or enabled_run.stdout)
     if "=== TOKENS ===" not in enabled_run.stdout:
@@ -41,7 +39,8 @@ def main():
     disabled = run("--disable-frontend-visibility", home=home)
     if disabled.returncode != 0:
         raise SystemExit(disabled.stderr or disabled.stdout)
-    disabled_run = run("main.resy", home=home)
+
+    disabled_run = run("tests/test_resy_for_cli.resy", home=home)
     if disabled_run.returncode != 0:
         raise SystemExit(disabled_run.stderr or disabled_run.stdout)
     if "=== TOKENS ===" in disabled_run.stdout:
