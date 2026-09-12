@@ -50,7 +50,7 @@ resiris
 Run this from inside the project folder:
 
 ```bash
-./install_reseris
+./install_reseris.sh
 ```
 
 The installer creates the `resiris` symlink in `~/.local/bin`. It also installs the `.resy` Linux file-manager integration and the existing Seti-based VS Code extension from `pre_packaging`.
