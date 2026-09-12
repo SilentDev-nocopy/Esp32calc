@@ -36,6 +36,9 @@ def print_banner() -> None:
 
 # Run .resy file
 
+FRONTEND_CONFIG_DIR = Path.home() / ".config" / "resiris"
+FRONTEND_CONFIG_FILE = FRONTEND_CONFIG_DIR / "frontend_visibility"
+
 def run_file(source_path: Path, show_frontend: bool = False) -> int:
     if source_path.suffix.lower() != ".resy":
         print(
@@ -101,6 +104,21 @@ class ResirisArgumentParser(argparse.ArgumentParser):
         self.exit(2, f"{RED}Resiris CLI error:{RESET} {message}\n")
 
 
+def frontend_visibility_enabled() -> bool:
+    return FRONTEND_CONFIG_FILE.is_file()
+
+
+def set_frontend_visibility(enabled: bool) -> None:
+    if enabled:
+        FRONTEND_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        FRONTEND_CONFIG_FILE.write_text("enabled\n", encoding="utf-8")
+    else:
+        try:
+            FRONTEND_CONFIG_FILE.unlink()
+        except FileNotFoundError:
+            pass
+
+
 def main() -> int:
     parser = ResirisArgumentParser(
         prog="resiris",
@@ -129,8 +147,20 @@ def main() -> int:
 
     args = parser.parse_args()
 
-    # No file supplied.
-    # Do NOT automatically run main.resy.
+    # These switches are persistent settings. A file is optional.
+    if args.enable_frontend_visibility:
+        set_frontend_visibility(True)
+        print(f"{GREEN}Frontend visibility enabled.{RESET}")
+        if args.file is None:
+            return 0
+
+    if args.disable_frontend_visibility:
+        set_frontend_visibility(False)
+        print(f"{GREEN}Frontend visibility disabled.{RESET}")
+        if args.file is None:
+            return 0
+
+    # No file supplied and no setting change.
     if args.file is None:
         print_banner()
 
@@ -144,16 +174,18 @@ def main() -> int:
 
         print(f"{BLUE}Options:{RESET}")
         print("  --enable-frontend-visibility")
-        print("               Show tokenizer and parser output after running")
+        print("               Enable frontend output for .resy files")
         print("  --disable-frontend-visibility")
-        print("               Disable tokenizer and parser output")
+        print("               Disable frontend output for .resy files")
         print("  --help       Show this help message")
         print("  --version    Show the Resiris version")
 
         return 0
 
-    show_frontend = args.enable_frontend_visibility and not args.disable_frontend_visibility
-    return run_file(Path(args.file), show_frontend)
+    return run_file(
+        Path(args.file),
+        show_frontend=frontend_visibility_enabled(),
+    )
 
 
 if __name__ == "__main__":
