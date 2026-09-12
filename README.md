@@ -33,7 +33,7 @@ You can also use the project launcher:
 ./resiris program.resy
 ```
 
-If you run Resiris without a file, it does not automatically open `main.resy`. Instead, it prints a short usage message:
+If you run Resiris without a file, it does not automatically open `main.resy`. Instead, it shows the Resiris CLI main page:
 
 ```bash
 resiris
@@ -67,11 +67,11 @@ Running only:
 resiris
 ```
 
-shows the short Resiris usage screen. It does not run `main.resy` automatically.
+shows the Resiris CLI main page. It does not run `main.resy` automatically.
 
 ## Error output
 
-When a Resiris source file contains a normal tokenizer, parser or runtime error, the CLI prints only the Resiris error. Python traceback output is not shown.
+Resiris errors are printed as concise CLI errors without exposing the internal Python traceback. Source errors from the tokenizer, parser or runtime include the Resiris error type and its message.
 
 For example:
 
@@ -79,7 +79,7 @@ For example:
 UnknownVariableError: line 1, column 1: x: unknown name
 ```
 
-The internal Python call stack is kept out of normal Resiris error output.
+Invalid command-line arguments are reported separately as `Resiris CLI error:` messages instead of printing the full argparse usage page.
 
 ## Removing it
 
