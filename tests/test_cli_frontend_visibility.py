@@ -31,9 +31,9 @@ def main():
     enabled_run = run("tests/test_resy_for_cli.resy", home=home)
     if enabled_run.returncode != 0:
         raise SystemExit(enabled_run.stderr or enabled_run.stdout)
-    if "=== TOKENS ===" not in enabled_run.stdout:
+    if "<TOKENS>" not in enabled_run.stdout:
         raise SystemExit("Frontend output was not enabled persistently")
-    if "=== AST ===" not in enabled_run.stdout:
+    if "<AST>" not in enabled_run.stdout:
         raise SystemExit("AST output was not enabled persistently")
 
     disabled = run("--disable-frontend-visibility", home=home)
@@ -43,9 +43,9 @@ def main():
     disabled_run = run("tests/test_resy_for_cli.resy", home=home)
     if disabled_run.returncode != 0:
         raise SystemExit(disabled_run.stderr or disabled_run.stdout)
-    if "=== TOKENS ===" in disabled_run.stdout:
+    if "<TOKENS>" in disabled_run.stdout:
         raise SystemExit("Frontend output was not disabled")
-    if "=== AST ===" in disabled_run.stdout:
+    if "<AST>" in disabled_run.stdout:
         raise SystemExit("AST output was not disabled")
 
     both = run(

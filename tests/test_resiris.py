@@ -28,11 +28,11 @@ start():
 def main():
     tokens = Tokenizer().tokenize(SOURCE)
 
-    print("=== TOKENS ===")
+    print("<TOKENS>")
     for token in tokens:
         print(token)
 
-    print("\n=== AST ===")
+    print("\n<AST>")
     tree = Parser(tokens).parse()
     print(ast_to_dict(tree))
 

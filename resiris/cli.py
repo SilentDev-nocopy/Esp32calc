@@ -90,12 +90,12 @@ def run_file(source_path: Path, show_frontend: bool = False) -> int:
 
         if show_frontend:
             print()
-            print("=== TOKENS ===")
+            print("<TOKENS>")
             for token in tokens:
                 print(token)
 
             print()
-            print("=== AST ===")
+            print("<AST>")
             print(ast_to_dict(program))
 
     except (ResirisSyntaxError, RuntimeErrorResiris) as error:
