@@ -18,6 +18,8 @@ RESET = "\033[0m"
 
 # Resiris CLI banner
 
+VERSION = "1.8"
+
 BANNER = f"""{RED}
 ██████╗ ███████╗███████╗██╗██████╗ ██╗███████╗
 ██╔══██╗██╔════╝██╔════╝██║██╔══██╗██║██╔════╝
@@ -30,7 +32,8 @@ BANNER = f"""{RED}
 
 def print_banner() -> None:
     print(BANNER)
-    print("Resiris Developer CLI v0.1")
+    print("Resiris CLI")
+    print(f"Version:{VERSION}")
     print()
 
 
@@ -121,7 +124,6 @@ def run_file(source_path: Path, show_frontend: bool = False) -> int:
 def main() -> int:
     parser = ResirisArgumentParser(
         prog="resiris",
-        description="Resiris developer CLI",
     )
 
     frontend_group = parser.add_mutually_exclusive_group()
@@ -136,6 +138,13 @@ def main() -> int:
         "--disable-frontend-visibility",
         action="store_true",
         help="Disable frontend output for subsequently run .resy files",
+    )
+
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"Version:{VERSION}",
+        help="Show the Resiris version",
     )
 
     parser.add_argument(
