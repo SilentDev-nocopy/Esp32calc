@@ -1,1 +1,0 @@
-jelenleg csak a gyökérmappában müködik a "resiris" parancs, pedig nekünk egy globális parancsszó kell
