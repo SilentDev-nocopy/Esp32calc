@@ -1,0 +1,16 @@
+# Resiris full file integration
+
+Installs:
+- Linux `*.resy` MIME type
+- Linux file-manager icon `application-x-resy`
+- Resiris desktop association
+- Seti-based VS Code theme where only `*.resy` uses the RESY icon
+
+Run `./install.sh` to install everything.
+Run `./uninstall.sh` to remove everything.
+
+The Linux icon preserves the approved artwork in a high-resolution SVG
+container. The VS Code theme is generated from the locally installed Seti
+theme, so the built-in Seti installation is not modified.
+
+The desktop entry currently expects `resiris` as the executable command

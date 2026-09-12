@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Resiris
+Comment=Resiris programming language
+Exec=resiris %F
+Terminal=true
+Type=Application
+MimeType=application/x-resy;
+Icon=application-x-resy
+Categories=Development;Education;
+StartupNotify=false
