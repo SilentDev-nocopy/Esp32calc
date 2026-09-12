@@ -8,9 +8,7 @@ from .parser import Parser, ast_to_dict
 from .tokenizer import ResirisSyntaxError, Tokenizer
 
 
-# ─────────────────────────────────────────────
 # Terminal colors
-# ─────────────────────────────────────────────
 
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -18,9 +16,7 @@ BLUE = "\033[34m"
 RESET = "\033[0m"
 
 
-# ─────────────────────────────────────────────
 # Resiris CLI banner
-# ─────────────────────────────────────────────
 
 BANNER = f"""{RED}
 ██████╗ ███████╗███████╗██╗██████╗ ██╗███████╗
@@ -38,9 +34,7 @@ def print_banner() -> None:
     print()
 
 
-# ─────────────────────────────────────────────
 # Run .resy file
-# ─────────────────────────────────────────────
 
 def run_file(source_path: Path, show_frontend: bool = False) -> int:
     if source_path.suffix.lower() != ".resy":
@@ -98,12 +92,17 @@ def run_file(source_path: Path, show_frontend: bool = False) -> int:
     return 0
 
 
-# ─────────────────────────────────────────────
 # CLI
-# ─────────────────────────────────────────────
+
+class ResirisArgumentParser(argparse.ArgumentParser):
+    """Argument parser that keeps command-line errors compact."""
+
+    def error(self, message: str) -> None:
+        self.exit(2, f"{RED}Resiris CLI error:{RESET} {message}\n")
+
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
+    parser = ResirisArgumentParser(
         prog="resiris",
         description="Resiris developer CLI",
     )

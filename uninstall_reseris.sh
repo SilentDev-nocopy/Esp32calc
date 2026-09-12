@@ -14,6 +14,11 @@ fi
 MIME="$HOME/.local/share/mime/packages"
 ICONS="$HOME/.local/share/icons/hicolor/scalable/mimetypes"
 APPS="$HOME/.local/share/applications"
+BASH_COMPLETION="$HOME/.local/share/bash-completion/completions"
+ZSH_COMPLETION="$HOME/.local/share/zsh/site-functions"
+
+# Remove shell completion
+rm -f "$BASH_COMPLETION/resiris" "$ZSH_COMPLETION/_resiris"
 
 # Remove .resy Linux integration
 rm -f "$MIME/resy.xml" "$ICONS/application-x-resy.svg" "$APPS/resiris.desktop"

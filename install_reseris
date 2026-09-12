@@ -7,10 +7,21 @@ BIN="$HOME/.local/bin"
 MIME="$HOME/.local/share/mime/packages"
 ICONS="$HOME/.local/share/icons/hicolor/scalable/mimetypes"
 APPS="$HOME/.local/share/applications"
+BASH_COMPLETION="$HOME/.local/share/bash-completion/completions"
+ZSH_COMPLETION="$HOME/.local/share/zsh/site-functions"
 
-mkdir -p "$BIN" "$MIME" "$ICONS" "$APPS"
+mkdir -p "$BIN" "$MIME" "$ICONS" "$APPS" "$BASH_COMPLETION" "$ZSH_COMPLETION"
 
 ln -sfn "$ROOT/bin/resiris" "$BIN/resiris"
+
+# Install shell completion for Resiris CLI arguments and .resy files.
+if [[ -f "$ROOT/pre_packaging/shell/resiris.bash" ]]; then
+    cp "$ROOT/pre_packaging/shell/resiris.bash"         "$BASH_COMPLETION/resiris"
+fi
+
+if [[ -f "$ROOT/pre_packaging/shell/_resiris" ]]; then
+    cp "$ROOT/pre_packaging/shell/_resiris"         "$ZSH_COMPLETION/_resiris"
+fi
 
 if [[ -f "$ROOT/pre_packaging/linux/mime/resy.xml" ]]; then
     cp \
