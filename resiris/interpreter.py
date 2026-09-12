@@ -84,6 +84,8 @@ class Interpreter:
       - fn
       - return
     - function calls
+        - str()
+        - type()
       - print_cmd()
 
     Does NOT execute yet:
@@ -432,11 +434,27 @@ class Interpreter:
             ]
 
             if isinstance(expression.function, Name):
-                variable = self.find_variable(expression.function.name)
+                function_name = expression.function.name
+
+                if function_name == "str":
+                    if len(arguments) != 1:
+                        raise FunctionError(
+                            f"str: 1 argument required, but {len(arguments)} arguments received"
+                        )
+                    return str(arguments[0])
+
+                if function_name == "type":
+                    if len(arguments) != 1:
+                        raise FunctionError(
+                            f"type: 1 argument required, but {len(arguments)} arguments received"
+                        )
+                    return self.infer_type_name(arguments[0])
+
+                variable = self.find_variable(function_name)
                 if variable is not None and isinstance(variable.value, FunctionalObject):
                     return self.call_function_object(variable.value, arguments)
 
-                return self.call_function(expression.function.name, arguments)
+                return self.call_function(function_name, arguments)
 
             raise FunctionError(
                 "the function call target must currently be a name or FunctionalObject"
