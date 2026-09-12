@@ -15,7 +15,6 @@ For the `.resy` file integration, these are optional:
 - VS Code / Code - OSS / VSCodium
 - `xdg-mime`
 - `update-mime-database`
-- `update-desktop-database`
 
 ## How to use
 
@@ -30,7 +29,7 @@ python3 -m resiris program.resy
 You can also use the project launcher:
 
 ```bash
-./resiris program.resy
+./bin/resiris program.resy
 ```
 
 If you run Resiris without a file, it does not automatically open `main.resy`. Instead, it shows the Resiris CLI main page:
@@ -53,7 +52,7 @@ Run this from inside the project folder:
 ./install_reseris.sh
 ```
 
-The installer creates the `resiris` symlink in `~/.local/bin`. It also installs the `.resy` Linux file-manager integration and the existing Seti-based VS Code extension from `pre_packaging`.
+The installer creates the `resiris` symlink in `~/.local/bin`. It also installs the `.resy` Linux file-manager integration and the existing Seti-based VS Code extension from `pre_packaging`. Resiris is terminal-only and is not installed as an application in the desktop app menu.
 
 Then you can run Resiris from any terminal:
 

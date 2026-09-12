@@ -6,11 +6,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BIN="$HOME/.local/bin"
 MIME="$HOME/.local/share/mime/packages"
 ICONS="$HOME/.local/share/icons/hicolor/scalable/mimetypes"
-APPS="$HOME/.local/share/applications"
 BASH_COMPLETION="$HOME/.local/share/bash-completion/completions"
 ZSH_COMPLETION="$HOME/.local/share/zsh/site-functions"
 
-mkdir -p "$BIN" "$MIME" "$ICONS" "$APPS" "$BASH_COMPLETION" "$ZSH_COMPLETION"
+mkdir -p "$BIN" "$MIME" "$ICONS" "$BASH_COMPLETION" "$ZSH_COMPLETION"
 
 ln -sfn "$ROOT/bin/resiris" "$BIN/resiris"
 
@@ -34,14 +33,6 @@ if [[ -f "$ROOT/pre_packaging/linux/mime/resy.xml" ]]; then
             "$ICONS/application-x-resy.svg"
     fi
 
-    # Install the desktop entry only for metadata/icon integration.
-    # It is not registered as the default application for .resy files.
-    if [[ -f "$ROOT/pre_packaging/linux/resiris.desktop" ]]; then
-        cp \
-            "$ROOT/pre_packaging/linux/resiris.desktop" \
-            "$APPS/resiris.desktop"
-    fi
-
     # Update MIME database
     if command -v update-mime-database >/dev/null 2>&1; then
         update-mime-database \
@@ -49,12 +40,6 @@ if [[ -f "$ROOT/pre_packaging/linux/mime/resy.xml" ]]; then
             >/dev/null 2>&1 || true
     fi
 
-    # Update desktop database
-    if command -v update-desktop-database >/dev/null 2>&1; then
-        update-desktop-database \
-            "$APPS" \
-            >/dev/null 2>&1 || true
-    fi
 fi
 
 CODE_CMD=""
@@ -105,7 +90,7 @@ if [[ -n "$CODE_CMD" ]]; then
     if [[ ! -f "$VSIX" && \
           -f "$ROOT/pre_packaging/vscode/build_vsix.py" ]]; then
 
-        if ! python3 \
+        if ! /usr/bin/python3 \
             "$ROOT/pre_packaging/vscode/build_vsix.py" \
             >/dev/null 2>&1
         then

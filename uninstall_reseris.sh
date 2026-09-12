@@ -13,7 +13,6 @@ fi
 
 MIME="$HOME/.local/share/mime/packages"
 ICONS="$HOME/.local/share/icons/hicolor/scalable/mimetypes"
-APPS="$HOME/.local/share/applications"
 BASH_COMPLETION="$HOME/.local/share/bash-completion/completions"
 ZSH_COMPLETION="$HOME/.local/share/zsh/site-functions"
 
@@ -21,12 +20,11 @@ ZSH_COMPLETION="$HOME/.local/share/zsh/site-functions"
 rm -f "$BASH_COMPLETION/resiris" "$ZSH_COMPLETION/_resiris"
 
 # Remove .resy Linux integration
-rm -f "$MIME/resy.xml" "$ICONS/application-x-resy.svg" "$APPS/resiris.desktop"
+rm -f "$MIME/resy.xml" "$ICONS/application-x-resy.svg"
+rm -f "$HOME/.local/share/applications/resiris.desktop"
 
 command -v update-mime-database >/dev/null 2>&1 && \
     update-mime-database "$HOME/.local/share/mime" >/dev/null 2>&1 || true
-command -v update-desktop-database >/dev/null 2>&1 && \
-    update-desktop-database "$APPS" >/dev/null 2>&1 || true
 
 # Remove the installed Resiris VS Code / VSCodium extension
 for cmd in code code-insiders codium; do

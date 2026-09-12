@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT="$(readlink -f "${BASH_SOURCE[0]}")"
+ROOT="$(cd "$(dirname "$SCRIPT")/.." && pwd)"
+PYTHON="/usr/bin/python3"
+
+if [[ ! -x "$PYTHON" ]]; then
+    echo "ERROR: /usr/bin/python3 was not found." >&2
+    exit 1
+fi
 
 export PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}"
 
-exec python3 -m resiris "$@"
+exec "$PYTHON" -m resiris "$@"
