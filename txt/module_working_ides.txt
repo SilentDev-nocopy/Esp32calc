@@ -1,0 +1,24 @@
+A Resiry module is a library written and build for only the Resiris Programming Language.
+
+To be able to use a module you have to include it into the .resy file, by typing " <include> ModuleName"
+
+As the Runtime reads the .resy file, it will import the give modules from the "Modules" folder. Every module including has to happen on the top of the file!
+So it has to look like this:"<include> ModuleName
+                             <include> ModuleName2" or " <include> ModuleName , ModuleName2 "
+
+If a module is not found then The runtime give an error:"{ModuleName} not found!" Error code:"MissingModule"
+
+A module can have data and can give data like: int, float, string, bool, function.
+A module cant have data like: UnknownObject, so every variant need to have a given value which cant change, so idealy use constans.
+
+
+How to use a module:
+"<include> ModuleName, ModuleName2
+
+v test ModuleObject = ModuleName
+print_cmd(test.module_function_name(argument)) <-only int,float,bool,string can be argument! Otherwise gives error:"{given_argument} is not a usable modules argument!" Error code:"UnknownModuleArgument"
+##or
+print_cmd(str(est.modul_constans_value)) <-uses resiris type() build-in function
+##or
+print_cmd(str(est.modul_constans_value)) <-uses resiris str() build-in function
+"
