@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 from .interpreter import Interpreter, RuntimeErrorResiris
-from .parser import Parser
+from .parser import Parser, ast_to_dict
 from .tokenizer import ResirisSyntaxError, Tokenizer
 
 
@@ -42,7 +42,7 @@ def print_banner() -> None:
 # Run .resy file
 # ─────────────────────────────────────────────
 
-def run_file(source_path: Path) -> int:
+def run_file(source_path: Path, show_frontend: bool = False) -> int:
     if source_path.suffix.lower() != ".resy":
         print(
             f"{RED}ResirisError:{RESET} "
@@ -64,6 +64,16 @@ def run_file(source_path: Path) -> int:
         program = Parser(tokens).parse()
 
         Interpreter().run(program)
+
+        if show_frontend:
+            print()
+            print("=== TOKENS ===")
+            for token in tokens:
+                print(token)
+
+            print()
+            print("=== AST ===")
+            print(ast_to_dict(program))
 
     except (ResirisSyntaxError, RuntimeErrorResiris) as error:
         print(
@@ -98,6 +108,20 @@ def main() -> int:
         description="Resiris developer CLI",
     )
 
+    frontend_group = parser.add_mutually_exclusive_group()
+
+    frontend_group.add_argument(
+        "--enable-frontend-visibility",
+        action="store_true",
+        help="Show tokenizer and parser output after running the .resy file",
+    )
+
+    frontend_group.add_argument(
+        "--disable-frontend-visibility",
+        action="store_true",
+        help="Disable tokenizer and parser output after running the .resy file",
+    )
+
     parser.add_argument(
         "file",
         nargs="?",
@@ -120,12 +144,17 @@ def main() -> int:
         print()
 
         print(f"{BLUE}Options:{RESET}")
+        print("  --enable-frontend-visibility")
+        print("               Show tokenizer and parser output after running")
+        print("  --disable-frontend-visibility")
+        print("               Disable tokenizer and parser output")
         print("  --help       Show this help message")
         print("  --version    Show the Resiris version")
 
         return 0
 
-    return run_file(Path(args.file))
+    show_frontend = args.enable_frontend_visibility and not args.disable_frontend_visibility
+    return run_file(Path(args.file), show_frontend)
 
 
 if __name__ == "__main__":
