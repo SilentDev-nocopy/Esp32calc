@@ -11,7 +11,7 @@ class Program:
 
 @dataclass
 class Include:
-    module: str
+    modules: list[str]
 
 
 @dataclass

@@ -97,8 +97,15 @@ class Parser:
     def _parse_statement_impl(self):
         token = self.current()
 
+        if token.type is TokenType.LT:
+            if (
+                self.pos + 1 < len(self.tokens)
+                and self.tokens[self.pos + 1].type is TokenType.INCLUDE
+            ):
+                return self.parse_include()
+            self.error(token, "`<` can only start `<include>`")
         if token.type is TokenType.INCLUDE:
-            return self.parse_include()
+            self.error(token, "`include` must be written as `<include>`")
         if token.type is TokenType.V:
             return self.parse_declaration()
         if token.type is TokenType.C:
@@ -150,13 +157,25 @@ class Parser:
         return self.parse_assignment_or_expression()
 
     def parse_include(self) -> Include:
-        self.advance()
-        module = self.expect(
-            TokenType.IDENTIFIER,
-            "a module name is required after `include`"
-        )
-        self.expect(TokenType.NEWLINE, "a line ending is required after `include`")
-        return Include(module.value)
+        # Current Resiris syntax: <include> ModuleName, ModuleName2
+        self.expect(TokenType.LT, "`<` is required before `include`")
+        self.expect(TokenType.INCLUDE, "`include` is required after `<`")
+        self.expect(TokenType.GT, "`>` is required after `include`")
+
+        modules: list[str] = []
+
+        while True:
+            module = self.expect(
+                TokenType.IDENTIFIER,
+                "a module name is required after `<include>`"
+            )
+            modules.append(module.value)
+
+            if not self.match(TokenType.COMMA):
+                break
+
+        self.expect(TokenType.NEWLINE, "a line ending is required after `<include>`")
+        return Include(modules)
 
     def parse_declaration(self) -> Declaration:
         kind = self.advance().value
