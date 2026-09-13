@@ -46,36 +46,36 @@ v result float = RSMath.sqrt(25)
 ###########
 
 17. What is the exact structure of a module?
-    When a module is included, load it and run its own "_INIT_" function.
-    A module has to have atleast one constans variant, named "NAME" and its a string.
-    If a module's functions is called from a currently running .resy file, run it then close it so it makes free memory.
-    The point is to make every calculation in the start so in the remaining time the whole runtime runs smooter.
+        When a module is included, load it and run its own "_INIT_" function.
+        A module has to have atleast one constans variant, named "NAME" and its a string.
+        If a module's functions is called from a currently running .resy file, run it then close it so it makes free memory.
+        The point is to make every calculation in the start so in the remaining time the whole runtime runs smooter.
 
 18. How does a C++ module register itself and its functions/variants to the Resiris Core?
-    Every module will have 3 constans, one named "FUNCTIONS" which type is string, the second is named "VARIABLES" which type is also string.
+        Every module will have 3 constans, one named "FUNCTIONS" which type is string, the second is named "VARIABLES" which type is also string.
 
 19. What can a module export besides int, float, string, bool and functions?
-    Nothing. Just int, float, string, bool, function. The functions type idealy used on the start so id doesnt have to run again and again.
+        Nothing. Just int, float, string, bool, function. The functions type idealy used on the start so id doesnt have to run again and again.
 20. Can a module have constants only, or can it also have other types of data?
-    No, just constans!
+        No, just constans!
 21. What exactly happens when a module is included?
-    Runs its own _INIT_ function which tells the runtime the module's NAME, FUNCTIONS and VARIABLES constans.
+        Runs its own _INIT_ function which tells the runtime the module's NAME, FUNCTIONS and VARIABLES constans.
 22. Can a module namespace be assigned to a variable?
-    Yes but idealy the "caller variable" has to be upperthen any future function.
+        Yes but idealy the "caller variable" has to be upperthen any future function.
 23. What exact rules apply to module functions and their arguments?
-
+        To give an argument to a module function write "ModuleName.function_name(argument, argument2)
 24. What types can a module function return?
-
+        Every one of the usable type is "returnable". It means int, float, string, bool, FunctionalObject is returnable. Nothing else!
 25. Can a module have internal state?
-    Yes. On start, when scaning "INIT" Then when posting (aka. sending the 3 constans to the caller .resy file) "POSTING". When a .resy file is ask it to run a function then "RUNNING {FunctionName}". On exiting(to free up memory) "EXITED".
+        Yes. On start, when scaning "INIT" Then when posting (aka. sending the 3 constans to the caller .resy file) "POSTING". When a .resy file is ask it to run a function then "RUNNING {FunctionName}". On exiting(to free up memory) "EXITED".
 26. Does a module need an initialization function?
-    Yes, inside it when called, otherwise no.
+        Yes, inside it when called, otherwise no.
 27. When does module initialization happen?
-    On runtime start. Thats why we has to include ever module on the first line, so it has time to start.
+        On runtime start. Thats why we has to include ever module on the first line, so it has time to start.
 28. What happens if the same module is included more than once?
-    Just run ones, and give an error "{ModuleName} is already included. Error code:"SameModuleMultiCall"
+        Just run ones, and give an error "{ModuleName} is already included. Error code:"SameModuleMultiCall"
 29. Can modules depend on other modules?
-    Maybe in the future, yes.
+        Maybe in the future, yes.
 30. How does the Core communicate with a C++ module?
 
 31. How exactly does a module send its NAME, FUNCTIONS and VARIABLES data to the Runtime?
@@ -84,9 +84,9 @@ v result float = RSMath.sqrt(25)
 32. What is the minimum C API needed between the Core and modules?
 
 33. How does the Runtime find and load a module?
-    On start scans the "Modules" folder in the root folder for called modules.
+        On start scans the "Modules" folder in the root folder for called modules.
 34. Can there be different versions of the same module?
-    Yes. They can have numbers in they name so yes.
+        Yes. They can have numbers in they name so yes.
 
 The "NAME" constans has the module own name.
 The "FUNCTIONS" constans has every function name in the given module.
