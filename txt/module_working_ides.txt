@@ -95,7 +95,7 @@ The "VARIABLES" constans has every constans and variables name and type in the g
 35. What exactly can the "." be used to access?
         The "point" is used for accessing functions that are not in the current .resy file.
 36. Can the "." be used to access only module functions and constants, or can it be used for other Resiris objects too?
-        The "point" is only used for accessing module functions. With the "point" you cant access module constans. if you want to get a module constans data the you have to write this:"v module_constans_as_variant ModuleObject = ModuleName[constansname] ##for example 10" <-its a int but if you plan to use it elsewhere then you have to give it a float type, by typing:"v module_constans_as_variant ModuleObject = ModuleName[constansname].type(float)  " <-using the build-in type() function and in the argumnt give the needed type.
+        The "point" is only used for accessing module functions. With the "point" you cant access module constans. if you want to get a module constans data the you have to write this:"v module_constans_as_variant int = ModuleName[constansname] ##for example 10" <-its a int but if you plan to use it elsewhere then you have to give it a float type, by setting the type to float:"v module_constans_as_variant float " or -using the build-in type() function and in the argumnt give the needed type. "ModuleName[constansname].type(float) "
 
 37. Can "." access be chained, like "ModuleName.something.something_else"?
         No. you cant chanin stuff like this.
