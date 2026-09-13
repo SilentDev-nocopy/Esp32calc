@@ -584,47 +584,60 @@ class Interpreter:
         )
 
     def convert_type(self, value, target_type):
+        # type() with no argument returns the current type of the caller.
+        if target_type is None:
+            return self.infer_type_name(value)
+
+        source_type = self.infer_type_name(value)
+
+        if target_type == source_type:
+            return value
+
         if target_type == "int":
-            if isinstance(value, bool):
-                return int(value)
-            if isinstance(value, (int, float)):
-                return int(value)
-            if isinstance(value, str):
-                try:
-                    return int(value)
-                except ValueError as error:
-                    raise TypeErrorResiris(
-                        f"type(int): cannot convert {value!r} to int"
-                    ) from error
+            if source_type == "bool":
+                return 1 if value else 0
+            if source_type == "float":
+                # Resiris rounds .5 upwards for positive values.
+                return int(value + 0.5)
+            if source_type == "int":
+                return value
+            raise RuntimeErrorResiris(
+                f'{source_type} cannot convert to int. Error code:"ConversionFail"'
+            )
 
         if target_type == "float":
-            if isinstance(value, bool):
+            if source_type == "bool":
+                return 1.0 if value else 0.0
+            if source_type == "int":
                 return float(value)
-            if isinstance(value, (int, float)):
-                return float(value)
-            if isinstance(value, str):
-                try:
-                    return float(value)
-                except ValueError as error:
-                    raise TypeErrorResiris(
-                        f"type(float): cannot convert {value!r} to float"
-                    ) from error
+            if source_type == "float":
+                return value
+            raise RuntimeErrorResiris(
+                f'{source_type} cannot convert to float. Error code:"ConversionFail"'
+            )
 
         if target_type == "string":
-            return str(value)
+            if source_type == "bool":
+                return "true" if value else "false"
+            if source_type in ("int", "float"):
+                return str(value)
+            if source_type == "string":
+                return value
+            raise RuntimeErrorResiris(
+                f'{source_type} cannot convert to string. Error code:"ConversionFail"'
+            )
 
         if target_type == "bool":
-            if isinstance(value, bool):
+            if source_type == "bool":
                 return value
-            if isinstance(value, (int, float)):
+            if source_type in ("int", "float"):
                 return value > 0
-
-            raise TypeErrorResiris(
-                f"type(bool): conversion is not defined for {self.infer_type_name(value)}"
+            raise RuntimeErrorResiris(
+                f'{source_type} cannot convert to bool. Error code:"ConversionFail"'
             )
 
         raise TypeErrorResiris(
-            f"type(): unknown target type: {target_type}"
+            f'{target_type} is an invalid type. Error code:"TypeError"'
         )
 
     def infer_type_name(self, value):

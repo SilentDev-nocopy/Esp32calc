@@ -400,24 +400,36 @@ class Parser:
                     TokenType.LPAREN,
                     "`(` is required after `.type`"
                 )
-                target = self.current()
+
                 target_types = {
                     TokenType.TYPE_INT: "int",
                     TokenType.TYPE_FLOAT: "float",
                     TokenType.TYPE_STRING: "string",
                     TokenType.TYPE_BOOL: "bool",
                 }
+
+                # type() with no argument queries the caller's current type.
+                if self.match(TokenType.RPAREN):
+                    expr = TypeConversionExpr(expr, None)
+                    continue
+
+                target = self.current()
                 if target.type not in target_types:
                     self.error(
                         target,
                         "type() requires one of: int, float, string, bool"
                     )
+
                 self.advance()
                 target_type = target_types[target.type]
-                self.expect(
-                    TokenType.RPAREN,
-                    "type() requires exactly 1 argument"
-                )
+
+                if not self.at(TokenType.RPAREN):
+                    self.error(
+                        self.current(),
+                        "type() receives only 1 argument"
+                    )
+
+                self.advance()
                 expr = TypeConversionExpr(expr, target_type)
                 continue
 
