@@ -1,12 +1,5 @@
-## ============================================================
-## RESIRIS RUNTIME STRESS TEST
-## type() + variables + constants + expressions + functions
-## ============================================================
 
 
-## ------------------------------------------------------------
-## 1. BASIC VALUES
-## ------------------------------------------------------------
 
 v int_value int = 10
 v negative_int int = -15
@@ -26,9 +19,6 @@ v number_text string = "123"
 v float_text string = "12.5"
 
 
-## ------------------------------------------------------------
-## 2. ORIGINAL VALUES
-## ------------------------------------------------------------
 
 print_cmd(int_value)
 print_cmd(negative_int)
@@ -48,18 +38,12 @@ print_cmd(number_text)
 print_cmd(float_text)
 
 
-## ------------------------------------------------------------
-## 3. INT -> FLOAT
-## ------------------------------------------------------------
 
 print_cmd(int_value.type(float))
 print_cmd(negative_int.type(float))
 print_cmd(zero_int.type(float))
 
 
-## ------------------------------------------------------------
-## 4. FLOAT -> INT
-## ------------------------------------------------------------
 
 print_cmd(float_value.type(int))
 print_cmd(small_float.type(int))
@@ -68,36 +52,24 @@ print_cmd(one_half_float.type(int))
 print_cmd(negative_float.type(int))
 
 
-## ------------------------------------------------------------
-## 5. INT -> STRING
-## ------------------------------------------------------------
 
 print_cmd(int_value.type(string))
 print_cmd(negative_int.type(string))
 print_cmd(zero_int.type(string))
 
 
-## ------------------------------------------------------------
-## 6. FLOAT -> STRING
-## ------------------------------------------------------------
 
 print_cmd(float_value.type(string))
 print_cmd(small_float.type(string))
 print_cmd(negative_float.type(string))
 
 
-## ------------------------------------------------------------
-## 7. INT -> BOOL
-## ------------------------------------------------------------
 
 print_cmd(int_value.type(bool))
 print_cmd(negative_int.type(bool))
 print_cmd(zero_int.type(bool))
 
 
-## ------------------------------------------------------------
-## 8. FLOAT -> BOOL
-## ------------------------------------------------------------
 
 print_cmd(float_value.type(bool))
 print_cmd(small_float.type(bool))
@@ -107,33 +79,21 @@ print_cmd(negative_float.type(bool))
 print_cmd(zero_int.type(bool))
 
 
-## ------------------------------------------------------------
-## 9. BOOL -> INT
-## ------------------------------------------------------------
 
 print_cmd(true_value.type(int))
 print_cmd(false_value.type(int))
 
 
-## ------------------------------------------------------------
-## 10. BOOL -> FLOAT
-## ------------------------------------------------------------
 
 print_cmd(true_value.type(float))
 print_cmd(false_value.type(float))
 
 
-## ------------------------------------------------------------
-## 11. BOOL -> STRING
-## ------------------------------------------------------------
 
 print_cmd(true_value.type(string))
 print_cmd(false_value.type(string))
 
 
-## ------------------------------------------------------------
-## 12. ORIGINAL VALUES MUST STILL EXIST
-## ------------------------------------------------------------
 
 print_cmd(int_value)
 print_cmd(float_value)
@@ -142,9 +102,6 @@ print_cmd(false_value)
 print_cmd(text_value)
 
 
-## ------------------------------------------------------------
-## 13. CONSTANTS
-## ------------------------------------------------------------
 
 c constant_int int = 100
 c constant_float float = 55.5
@@ -162,9 +119,6 @@ print_cmd(constant_bool)
 print_cmd(constant_string)
 
 
-## ------------------------------------------------------------
-## 14. MULTIPLE CONVERSIONS
-## ------------------------------------------------------------
 
 v a int = 25
 
@@ -178,9 +132,6 @@ print_cmd(c)
 print_cmd(d)
 
 
-## ------------------------------------------------------------
-## 15. NEGATIVE VALUES
-## ------------------------------------------------------------
 
 v negative_a int = -1
 v negative_b float = -0.5
@@ -194,9 +145,6 @@ print_cmd(negative_b.type(int))
 print_cmd(negative_c.type(int))
 
 
-## ------------------------------------------------------------
-## 16. ROUNDING TESTS
-## ------------------------------------------------------------
 
 v r0 float = 0.1
 v r1 float = 0.4
@@ -227,9 +175,6 @@ print_cmd(r9.type(int))
 print_cmd(r10.type(int))
 
 
-## ------------------------------------------------------------
-## 17. EXPRESSIONS + TYPE
-## ------------------------------------------------------------
 
 v expression_int int = 5 + 5
 v expression_float float = 10 / 4
@@ -243,9 +188,6 @@ print_cmd(expression_int.type(string))
 print_cmd(expression_float.type(string))
 
 
-## ------------------------------------------------------------
-## 18. CONVERSION RESULTS STORED IN NEW VARIANTS
-## ------------------------------------------------------------
 
 v original int = 42
 
@@ -259,9 +201,6 @@ print_cmd(as_string)
 print_cmd(as_bool)
 
 
-## ------------------------------------------------------------
-## 19. BOOL CONVERSION CHAIN
-## ------------------------------------------------------------
 
 v bool_source int = 50
 
@@ -277,9 +216,6 @@ print_cmd(bool_as_float)
 print_cmd(bool_as_string)
 
 
-## ------------------------------------------------------------
-## 20. FUNCTIONS
-## ------------------------------------------------------------
 
 fn conversion_test(value):
 	v converted_float float = value.type(float)
@@ -301,9 +237,6 @@ print_cmd(function_input)
 print_cmd(function_result)
 
 
-## ------------------------------------------------------------
-## 21. MORE FUNCTION CALLS
-## ------------------------------------------------------------
 
 fn bool_test(value):
 	v result bool = value.type(bool)
@@ -320,9 +253,6 @@ bool_test(bool_test_b)
 bool_test(bool_test_c)
 
 
-## ------------------------------------------------------------
-## 22. MANY VALUES
-## ------------------------------------------------------------
 
 v n1 int = 1
 v n2 int = 2
@@ -347,9 +277,6 @@ print_cmd(n9.type(float))
 print_cmd(n10.type(float))
 
 
-## ------------------------------------------------------------
-## 23. FINAL ORIGINAL-VALUE CHECK
-## ------------------------------------------------------------
 
 print_cmd(original)
 print_cmd(as_float)
@@ -365,6 +292,3 @@ print_cmd(constant_bool)
 print_cmd(constant_string)
 
 
-## ============================================================
-## END OF RUNTIME STRESS TEST
-## ============================================================
