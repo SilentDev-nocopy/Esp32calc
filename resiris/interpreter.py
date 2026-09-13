@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
 from .ast_nodes import (
     Assignment,
@@ -18,8 +19,10 @@ from .ast_nodes import (
     ReturnStmt,
     FunctionalObjectDef,
     UnaryExpr,
+    Include,
 )
 from .tokenizer import ResirisSyntaxError
+from .module_loader import ModuleLoader, RuntimeErrorResirisModule
 
 
 class RuntimeErrorResiris(Exception):
@@ -91,8 +94,7 @@ class Interpreter:
     Does NOT execute yet:
       - mat
       - await
-      - include
-      - modulokat
+      - module function calls
 
     Scope:
     - function parameters and v variables created inside functions are local
@@ -100,10 +102,12 @@ class Interpreter:
     - this scope rule is currently a PROTOTYPE, not the final Resiris specification
     """
 
-    def __init__(self):
+    def __init__(self, modules_dir: Path | str = "Modules"):
         self.variables: dict[str, Variable] = {}
         self.functions: dict[str, FunctionDef] = {}
         self.scope_stack: list[dict[str, Variable]] = []
+        self.module_loader = ModuleLoader(modules_dir)
+        self.modules: dict[str, object] = self.module_loader.loaded
 
     def run(self, program: Program) -> dict[str, Variable]:
         # Register top-level function definitions first,
@@ -135,6 +139,11 @@ class Interpreter:
 
     def execute(self, statement):
         try:
+            if isinstance(statement, Include):
+                for module_name in statement.modules:
+                    self.module_loader.load(module_name)
+                return
+
             if isinstance(statement, Declaration):
                 self.execute_declaration(statement)
                 return
@@ -169,6 +178,16 @@ class Interpreter:
                 f"The current interpreter version does not support: "
                 f"{type(statement).__name__}"
             )
+        except RuntimeErrorResirisModule as error:
+            line = getattr(statement, "source_line", None)
+            column = getattr(statement, "source_column", None)
+            message = str(error)
+            if line is not None:
+                location = f"line {line}"
+                if column is not None:
+                    location += f", column {column}"
+                message = f"{location}: {message}"
+            raise RuntimeErrorResiris(message) from error
         except RuntimeErrorResiris as error:
             line = getattr(statement, "source_line", None)
             column = getattr(statement, "source_column", None)
