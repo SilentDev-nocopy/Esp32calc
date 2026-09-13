@@ -91,17 +91,3 @@ v result float = RSMath.sqrt(25)
 The "NAME" constans has the module own name.
 The "FUNCTIONS" constans has every function name in the given module.
 The "VARIABLES" constans has every constans and variables name and type in the given module.
-
-35. What exactly can the "." be used to access?
-        The "point" is used for accessing functions that are not in the current .resy file.
-36. Can the "." be used to access only module functions and constants, or can it be used for other Resiris objects too?
-        The "point" is only used for accessing module functions. With the "point" you cant access module constans. if you want to get a module constans data the you have to write this:"v module_constans_as_variant int = ModuleName[constansname] ##for example 10" <-its a int but if you plan to use it elsewhere then you have to give it a float type, by setting the type to float:"v module_constans_as_variant float " or -using the build-in type() function and in the argumnt give the needed type. "ModuleName[constansname].type(float) "
-
-37. Can "." access be chained, like "ModuleName.something.something_else"?
-        No. you cant chanin stuff like this.
-38. Can a module function and a module constant have the same name?
-        Yes cause a function is called like this:"ModuleName.function_name()" but a constans is called like this "ModuleName[constansname] "
-39. What happens if "." is used to access a function or constant that does not exist in the given module?
-        Gives an error "{called function or constans} is a nonexisting function or constans. Error code:"NonexistingObject"
-40. What exact syntax rules apply to "." access, for example spaces, capitalization and function calls?
-        "point" is used to access functions only. no space or capitalization can be used.

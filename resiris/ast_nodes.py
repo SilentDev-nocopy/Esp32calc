@@ -102,3 +102,9 @@ class FunctionalObjectDef:
 class CallExpr:
     function: object
     arguments: list[object]
+
+
+@dataclass
+class TypeConversionExpr:
+    value: object
+    target_type: str

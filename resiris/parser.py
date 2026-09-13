@@ -7,7 +7,7 @@ from .tokenizer import Token, TokenType, ResirisSyntaxError
 from .ast_nodes import (
     Program, Include, Declaration, FunctionDef, IfStmt, ReturnStmt, PassStmt,
     AwaitStmt, PrintCmdStmt, Assignment, ExpressionStmt, Literal, Name, UnaryExpr,
-    BinaryExpr, CallExpr, FunctionalObjectDef,
+    BinaryExpr, CallExpr, FunctionalObjectDef, TypeConversionExpr,
 )
 
 
@@ -376,17 +376,52 @@ class Parser:
     def parse_call(self):
         expr = self.parse_primary()
 
-        while self.match(TokenType.LPAREN):
-            arguments = []
-            if not self.at(TokenType.RPAREN):
-                while True:
-                    arguments.append(self.parse_expression())
-                    if not self.match(TokenType.COMMA):
-                        break
-            self.expect(TokenType.RPAREN, "missing `)` in the call")
-            expr = CallExpr(expr, arguments)
+        while True:
+            if self.match(TokenType.LPAREN):
+                arguments = []
+                if not self.at(TokenType.RPAREN):
+                    while True:
+                        arguments.append(self.parse_expression())
+                        if not self.match(TokenType.COMMA):
+                            break
+                self.expect(TokenType.RPAREN, "missing `)` in the call")
+                expr = CallExpr(expr, arguments)
+                continue
 
-        return expr
+            if self.match(TokenType.DOT):
+                method = self.expect(
+                    TokenType.IDENTIFIER,
+                    "a method name is required after `.`"
+                )
+                if method.value != "type":
+                    self.error(method, "only `type()` is currently supported here")
+
+                self.expect(
+                    TokenType.LPAREN,
+                    "`(` is required after `.type`"
+                )
+                target = self.current()
+                target_types = {
+                    TokenType.TYPE_INT: "int",
+                    TokenType.TYPE_FLOAT: "float",
+                    TokenType.TYPE_STRING: "string",
+                    TokenType.TYPE_BOOL: "bool",
+                }
+                if target.type not in target_types:
+                    self.error(
+                        target,
+                        "type() requires one of: int, float, string, bool"
+                    )
+                self.advance()
+                target_type = target_types[target.type]
+                self.expect(
+                    TokenType.RPAREN,
+                    "type() requires exactly 1 argument"
+                )
+                expr = TypeConversionExpr(expr, target_type)
+                continue
+
+            return expr
 
     def parse_primary(self):
         token = self.current()

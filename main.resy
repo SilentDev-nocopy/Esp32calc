@@ -1,4 +1,4 @@
-fn asd():
-	print_cmd("asd")
-
-asd()
+x.type(Vector2)
+x.type(123)
+x.type()
+x.type(int, float)

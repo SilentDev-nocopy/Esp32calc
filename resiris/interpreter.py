@@ -6,7 +6,7 @@ from pathlib import Path
 from .ast_nodes import (
     Assignment,
     BinaryExpr,
-    CallExpr,
+    CallExpr, TypeConversionExpr,
     Declaration,
     ExpressionStmt,
     FunctionDef,
@@ -446,6 +446,10 @@ class Interpreter:
                 None,
             )
 
+        if isinstance(expression, TypeConversionExpr):
+            value = self.evaluate(expression.value)
+            return self.convert_type(value, expression.target_type)
+
         if isinstance(expression, CallExpr):
             arguments = [
                 self.evaluate(argument)
@@ -461,13 +465,6 @@ class Interpreter:
                             f"str: 1 argument required, but {len(arguments)} arguments received"
                         )
                     return str(arguments[0])
-
-                if function_name == "type":
-                    if len(arguments) != 1:
-                        raise FunctionError(
-                            f"type: 1 argument required, but {len(arguments)} arguments received"
-                        )
-                    return self.infer_type_name(arguments[0])
 
                 variable = self.find_variable(function_name)
                 if variable is not None and isinstance(variable.value, FunctionalObject):
@@ -584,6 +581,50 @@ class Interpreter:
 
         raise RuntimeErrorResiris(
             f"Unknown binary operator: {operator}"
+        )
+
+    def convert_type(self, value, target_type):
+        if target_type == "int":
+            if isinstance(value, bool):
+                return int(value)
+            if isinstance(value, (int, float)):
+                return int(value)
+            if isinstance(value, str):
+                try:
+                    return int(value)
+                except ValueError as error:
+                    raise TypeErrorResiris(
+                        f"type(int): cannot convert {value!r} to int"
+                    ) from error
+
+        if target_type == "float":
+            if isinstance(value, bool):
+                return float(value)
+            if isinstance(value, (int, float)):
+                return float(value)
+            if isinstance(value, str):
+                try:
+                    return float(value)
+                except ValueError as error:
+                    raise TypeErrorResiris(
+                        f"type(float): cannot convert {value!r} to float"
+                    ) from error
+
+        if target_type == "string":
+            return str(value)
+
+        if target_type == "bool":
+            if isinstance(value, bool):
+                return value
+            if isinstance(value, (int, float)):
+                return value > 0
+
+            raise TypeErrorResiris(
+                f"type(bool): conversion is not defined for {self.infer_type_name(value)}"
+            )
+
+        raise TypeErrorResiris(
+            f"type(): unknown target type: {target_type}"
         )
 
     def infer_type_name(self, value):
